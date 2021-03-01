@@ -38,8 +38,8 @@ namespace IdentitiesService.Repository
 
             RevokedRefreshTokens revokedToken = new RevokedRefreshTokens
             {
-                RefreshTokenReference =  refreshTokenData.Claims.First(c => c.Type == "sub").Value, // stamp,
-                // UserId = refreshTokenData.Claims.First(c => c.Type == "userId").Value,
+                RefreshTokenReference =  refreshTokenData.Claims.First(c => c.Type == "ref").Value,
+                UserId = Convert.ToInt32(refreshTokenData.Claims.First(c => c.Type == "sub").Value),
                 ExpiryAt = refreshTokenData.ValidTo,
                 RevokedAt = DateTime.Now
             };
