@@ -23,6 +23,35 @@ namespace IdentitiesService.Controllers
         }
 
         [HttpPost]
+        [Route("identities/tokens/revoke-access")]
+        public async Task<IActionResult> RevokeAccessToken(RevokedAccessTokenDto revokedAccessTokenDto)
+        {
+            try
+            {
+                RevokedAccessTokens revokedToken = _identitiesRepository.RevokeAccessToken(revokedAccessTokenDto.AccessToken);
+                await _context.RevokedAccessTokens.AddAsync(revokedToken);
+                await _context.SaveChangesAsync();
+            }
+            catch (ArgumentNullException ex)
+            {
+                return StatusCode(StatusCodes.Status422UnprocessableEntity, ex.Message);
+            }
+            catch (SecurityTokenExpiredException ex)
+            {
+                return StatusCode(StatusCodes.Status406NotAcceptable, ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, CommonMessage.ExceptionMessage + ex.Message);
+            }
+            return StatusCode(StatusCodes.Status200OK, CommonMessage.AccessTokenRevoked);
+        }
+
+        [HttpPost]
         [Route("identities/tokens/revoke-refresh")]
         public async Task<IActionResult> RevokeRefreshToken(RevokedRefreshTokenDto revokedRefreshTokenDto)
         {

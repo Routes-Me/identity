@@ -14,6 +14,7 @@ namespace IdentitiesService.Models.DBModels
         }
 
         public virtual DbSet<RevokedRefreshTokens> RevokedRefreshTokens { get; set; }
+        public virtual DbSet<RevokedAccessTokens> RevokedAccessTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,7 +26,7 @@ namespace IdentitiesService.Models.DBModels
 
                 entity.Property(e => e.RevokedRefreshTokenId).HasColumnName("revoked_refresh_token_id");
 
-                entity.Property(e => e.UserId).HasColumnName("user_id");
+                entity.Property(e => e.IdentityId).HasColumnName("identity_id");
 
                 entity.Property(e => e.RefreshTokenReference)
                     .HasColumnName("refresh_token_reference")
@@ -50,7 +51,7 @@ namespace IdentitiesService.Models.DBModels
 
                 entity.Property(e => e.RevokedAccessTokenId).HasColumnName("revoked_access_token_id");
 
-                entity.Property(e => e.UserId).HasColumnName("user_id");
+                entity.Property(e => e.IdentityId).HasColumnName("identity_id");
 
                 entity.Property(e => e.AccessTokenReference)
                     .HasColumnName("access_token_reference")

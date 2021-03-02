@@ -22,29 +22,53 @@ namespace IdentitiesService.Repository
 
         public dynamic RevokeRefreshToken(string refreshToken)
         {
-            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            JwtSecurityToken refreshTokenData = ValidateToken(refreshToken);
 
-            if (string.IsNullOrEmpty(refreshToken) || !tokenHandler.CanReadToken(refreshToken))
-                throw new ArgumentNullException(CommonMessage.InvalidData);
-
-            JwtSecurityToken refreshTokenData = tokenHandler.ReadToken(refreshToken) as JwtSecurityToken;
-
-            if (refreshTokenData.ValidTo < DateTime.UtcNow)
-                throw new SecurityTokenExpiredException(CommonMessage.TokenExpired);
-
-            string tokenreference = refreshTokenData.Claims.First(c => c.Type == "sub").Value;
+            string tokenreference = refreshTokenData.Claims.First(c => c.Type == "ref").Value;
             if (_context.RevokedRefreshTokens.Where(r => r.RefreshTokenReference == tokenreference).FirstOrDefault() != null)
                 throw new ArgumentException(CommonMessage.TokenAlreadyRevoked);
 
             RevokedRefreshTokens revokedToken = new RevokedRefreshTokens
             {
                 RefreshTokenReference =  refreshTokenData.Claims.First(c => c.Type == "ref").Value,
-                UserId = Convert.ToInt32(refreshTokenData.Claims.First(c => c.Type == "sub").Value),
+                IdentityId = Convert.ToInt32(refreshTokenData.Claims.First(c => c.Type == "sub").Value),
                 ExpiryAt = refreshTokenData.ValidTo,
                 RevokedAt = DateTime.Now
             };
-
             return revokedToken;
+        }
+
+        public dynamic RevokeAccessToken(string accessToken)
+        {
+            JwtSecurityToken accessTokenData = ValidateToken(accessToken);
+
+            string tokenreference = accessTokenData.Claims.First(c => c.Type == "ref").Value;
+            if (_context.RevokedAccessTokens.Where(r => r.AccessTokenReference == tokenreference).FirstOrDefault() != null)
+                throw new ArgumentException(CommonMessage.TokenAlreadyRevoked);
+
+            RevokedAccessTokens revokedToken = new RevokedAccessTokens
+            {
+                AccessTokenReference = accessTokenData.Claims.First(c => c.Type == "ref").Value,
+                IdentityId = Convert.ToInt32(accessTokenData.Claims.First(c => c.Type == "sub").Value),
+                ExpiryAt = accessTokenData.ValidTo,
+                RevokedAt = DateTime.Now
+            };
+            return revokedToken;
+        }
+
+        private dynamic ValidateToken(string token)
+        {
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+
+            if (string.IsNullOrEmpty(token) || !tokenHandler.CanReadToken(token))
+                throw new ArgumentNullException(CommonMessage.InvalidData);
+
+            JwtSecurityToken tokenData = tokenHandler.ReadToken(token) as JwtSecurityToken;
+
+            if (tokenData.ValidTo < DateTime.UtcNow)
+                throw new SecurityTokenExpiredException(CommonMessage.TokenExpired);
+
+            return tokenData;
         }
     }
 }
