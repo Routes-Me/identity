@@ -9,5 +9,7 @@ namespace IdentitiesService.Models.DBModels
         public string AccessTokenReference { get; set; }
         public DateTime ExpiryAt { get; set; }
         public DateTime RevokedAt { get; set; }
+
+        public virtual Identities Identity { get; set; }
     }
 }
