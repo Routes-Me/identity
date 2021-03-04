@@ -26,4 +26,10 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Obfuscation">
+      <HintPath>DLL\Obfuscation.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

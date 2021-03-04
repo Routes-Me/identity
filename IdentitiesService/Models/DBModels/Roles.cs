@@ -1,4 +1,6 @@
-﻿namespace IdentitiesService.Models.DBModels
+﻿using System.Collections.Generic;
+
+namespace IdentitiesService.Models.DBModels
 {
     public partial class Roles
     {
@@ -7,6 +9,6 @@
 
         public virtual Applications Application { get; set; }
         public virtual Privileges Privilege { get; set; }
-        public virtual IdentitiesRoles IdentitiesRoles { get; set; }
+        public virtual ICollection<IdentitiesRoles> IdentitiesRoles { get; set; }
     }
 }

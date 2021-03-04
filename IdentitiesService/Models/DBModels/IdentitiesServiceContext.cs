@@ -182,6 +182,12 @@ namespace IdentitiesService.Models.DBModels
                     .HasForeignKey(d => d.IdentityId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("identities_roles_ibfk_1");
+
+                entity.HasOne(d => d.Roles)
+                    .WithMany(p => p.IdentitiesRoles)
+                    .HasForeignKey(d => new { d.ApplicationId, d.PrivilegeId })
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("identities_roles_ibfk_2");
             });
 
             modelBuilder.Entity<Roles>(entity =>
@@ -209,12 +215,6 @@ namespace IdentitiesService.Models.DBModels
                     .HasForeignKey(d => d.PrivilegeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("roles_ibfk_1");
-
-                entity.HasOne(d => d.IdentitiesRoles)
-                    .WithMany(p => p.Roles)
-                    .HasForeignKey(e => new { e.ApplicationId, e.PrivilegeId })
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("roles_ibfk_3");
             });
 
             modelBuilder.Entity<Applications>(entity =>

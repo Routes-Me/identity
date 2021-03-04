@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using Obfuscation;
 
 namespace IdentitiesService.Repository
 {
@@ -31,7 +32,7 @@ namespace IdentitiesService.Repository
             RevokedRefreshTokens revokedToken = new RevokedRefreshTokens
             {
                 RefreshTokenReference =  refreshTokenData.Claims.First(c => c.Type == "ref").Value,
-                IdentityId = Convert.ToInt32(refreshTokenData.Claims.First(c => c.Type == "sub").Value),
+                IdentityId = ObfuscationClass.DecodeId(Convert.ToInt32(refreshTokenData.Claims.First(c => c.Type == "sub").Value), _appSettings.PrimeInverse),
                 ExpiryAt = refreshTokenData.ValidTo,
                 RevokedAt = DateTime.Now
             };
@@ -49,7 +50,7 @@ namespace IdentitiesService.Repository
             RevokedAccessTokens revokedToken = new RevokedAccessTokens
             {
                 AccessTokenReference = accessTokenData.Claims.First(c => c.Type == "ref").Value,
-                IdentityId = Convert.ToInt32(accessTokenData.Claims.First(c => c.Type == "sub").Value),
+                IdentityId = ObfuscationClass.DecodeId(Convert.ToInt32(accessTokenData.Claims.First(c => c.Type == "sub").Value), _appSettings.PrimeInverse),
                 ExpiryAt = accessTokenData.ValidTo,
                 RevokedAt = DateTime.Now
             };
