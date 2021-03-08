@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IdentitiesService.Controllers
 {
     [Route("[controller]")]
-    [ApiController]
-    public class HomeController : ControllerBase
+    public class HomeController : Controller
     {
         [Obsolete]
         public readonly IHostingEnvironment _hostingEnv;
@@ -20,7 +22,7 @@ namespace IdentitiesService.Controllers
         [Obsolete]
         public string Get()
         {
-            return "Identities service started successfully. Environment - " + _hostingEnv.EnvironmentName + "";
+            return "Identities service started successfully. Environment - " + _hostingEnv.EnvironmentName +"";
         }
     }
 }

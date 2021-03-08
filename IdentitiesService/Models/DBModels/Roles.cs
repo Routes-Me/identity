@@ -1,9 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace IdentitiesService.Models.DBModels
 {
     public partial class Roles
     {
+        public Roles()
+        {
+            IdentitiesRoles = new HashSet<IdentitiesRoles>();
+        }
+
         public int ApplicationId { get; set; }
         public int PrivilegeId { get; set; }
 

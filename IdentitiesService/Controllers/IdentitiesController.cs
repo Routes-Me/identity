@@ -1,12 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Net.Http;
+using Microsoft.AspNetCore.Mvc;
 using IdentitiesService.Abstraction;
 using IdentitiesService.Models;
 using IdentitiesService.Models.ResponseModel;
-using IdentitiesService.Models.DBModels;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace IdentitiesService.Controllers
 {
@@ -14,70 +10,35 @@ namespace IdentitiesService.Controllers
     [ApiController]
     public class IdentitiesController : ControllerBase
     {
-        private readonly IIdentitiesRepository _identitiesRepository;
-        private readonly IdentitiesServiceContext _context;
-        public IdentitiesController(IIdentitiesRepository identitiesRepository, IdentitiesServiceContext context)
+        private readonly IIdentitiesRepository _identitesRepository;
+        private static readonly HttpClient HttpClient = new HttpClient();
+        public IdentitiesController(IIdentitiesRepository identitiesRepository)
         {
-            _identitiesRepository = identitiesRepository;
-            _context = context;
+            _identitesRepository = identitiesRepository;
         }
 
-        [HttpPost]
-        [Route("identities/tokens/revoke-access")]
-        public async Task<IActionResult> RevokeAccessToken(RevokedAccessTokenDto revokedAccessTokenDto)
+        [HttpGet]
+        [Route("identities/{identityId?}")]
+        public IActionResult Get(string identityId, string Include, [FromQuery] Pagination pageInfo)
         {
-            try
-            {
-                RevokedAccessTokens revokedToken = _identitiesRepository.RevokeAccessToken(revokedAccessTokenDto.AccessToken);
-                await _context.RevokedAccessTokens.AddAsync(revokedToken);
-                await _context.SaveChangesAsync();
-            }
-            catch (ArgumentNullException ex)
-            {
-                return StatusCode(StatusCodes.Status422UnprocessableEntity, ex.Message);
-            }
-            catch (SecurityTokenExpiredException ex)
-            {
-                return StatusCode(StatusCodes.Status406NotAcceptable, ex.Message);
-            }
-            catch (ArgumentException ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, CommonMessage.ExceptionMessage + ex.Message);
-            }
-            return StatusCode(StatusCodes.Status200OK, CommonMessage.AccessTokenRevoked);
+            dynamic response = _identitesRepository.GetIdentity(identityId, pageInfo, Include);
+            return StatusCode((int)response.statusCode, response);
         }
 
-        [HttpPost]
-        [Route("identities/tokens/revoke-refresh")]
-        public async Task<IActionResult> RevokeRefreshToken(RevokedRefreshTokenDto revokedRefreshTokenDto)
+        [HttpDelete]
+        [Route("identities/{identityId}")]
+        public IActionResult delete(string identityId)
         {
-            try
-            {
-                RevokedRefreshTokens revokedToken = _identitiesRepository.RevokeRefreshToken(revokedRefreshTokenDto.RefreshToken);
-                await _context.RevokedRefreshTokens.AddAsync(revokedToken);
-                await _context.SaveChangesAsync();
-            }
-            catch (ArgumentNullException ex)
-            {
-                return StatusCode(StatusCodes.Status422UnprocessableEntity, ex.Message);
-            }
-            catch (SecurityTokenExpiredException ex)
-            {
-                return StatusCode(StatusCodes.Status406NotAcceptable, ex.Message);
-            }
-            catch (ArgumentException ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, CommonMessage.ExceptionMessage + ex.Message);
-            }
-            return StatusCode(StatusCodes.Status200OK, CommonMessage.RefreshTokenRevoked);
+            dynamic response = _identitesRepository.DeleteIdentity(identityId);
+            return StatusCode((int)response.statusCode, response);
+        }
+
+        [HttpPut]
+        [Route("identities")]
+        public IActionResult Put(RegistrationModel model)
+        {
+            dynamic response = _identitesRepository.UpdateIdentity(model);
+            return StatusCode((int)response.statusCode, response);
         }
     }
 }
