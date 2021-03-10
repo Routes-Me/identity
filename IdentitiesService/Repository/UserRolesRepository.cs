@@ -110,7 +110,7 @@ namespace IdentitiesService.Repository
             try
             {
                 if (model == null)
-                    return ReturnResponse.ErrorResponse(CommonMessage.BadRequest, StatusCodes.Status400BadRequest);
+                    return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
 
                 var ApplicationIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.ApplicationId), _appSettings.PrimeInverse);
                 var PrivilegeIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.PrivilegeId), _appSettings.PrimeInverse);
@@ -135,7 +135,7 @@ namespace IdentitiesService.Repository
             try
             {
                 if (model == null)
-                    return ReturnResponse.ErrorResponse(CommonMessage.BadRequest, StatusCodes.Status400BadRequest);
+                    return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
 
                 var ApplicationIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.ApplicationId), _appSettings.PrimeInverse);
                 var PrivilegeIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.PrivilegeId), _appSettings.PrimeInverse);

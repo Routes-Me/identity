@@ -30,10 +30,10 @@ namespace IdentitiesService.Controllers
 
         [HttpPost]
         [Route("signup")]
-        public async Task<IActionResult> Signup(RegistrationModel model)
+        public async Task<IActionResult> Signup(RegistrationDto model)
         {
             dynamic response = await _accountRepository.SignUp(model);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpPost]
@@ -55,8 +55,7 @@ namespace IdentitiesService.Controllers
             }
             catch (Exception ex)
             {
-                dynamic errorResponse = ReturnResponse.ExceptionResponse(ex);
-                return StatusCode((int)errorResponse.statusCode, errorResponse);
+                return StatusCode(StatusCodes.Status400BadRequest, CommonMessage.ExceptionMessage + ex.Message);
             }
             SignInResponse response = new SignInResponse();
             response.message = CommonMessage.LoginSuccess;
@@ -93,8 +92,7 @@ namespace IdentitiesService.Controllers
             }
             catch (Exception ex)
             {
-                dynamic errorResponse = ReturnResponse.ExceptionResponse(ex);
-                return StatusCode(errorResponse.statusCode, errorResponse);
+                return StatusCode(StatusCodes.Status400BadRequest, CommonMessage.ExceptionMessage + ex.Message);
             }
             response.message = CommonMessage.RenewSuccess;
             return StatusCode(StatusCodes.Status200OK, response);

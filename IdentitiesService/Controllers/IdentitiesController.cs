@@ -35,7 +35,7 @@ namespace IdentitiesService.Controllers
 
         [HttpPut]
         [Route("identities")]
-        public IActionResult Put(RegistrationModel model)
+        public IActionResult Put(RegistrationDto model)
         {
             dynamic response = _identitesRepository.UpdateIdentity(model);
             return StatusCode((int)response.statusCode, response);

@@ -66,7 +66,7 @@ namespace IdentitiesService.Repository
             }
         }
 
-        public dynamic UpdateIdentity(RegistrationModel model)
+        public dynamic UpdateIdentity(RegistrationDto model)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace IdentitiesService.Repository
                 int institutionIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.InstitutionId), _appSettings.PrimeInverse);
                 List<RolesModel> roles = new List<RolesModel>();
                 if (model == null)
-                    return ReturnResponse.ErrorResponse(CommonMessage.BadRequest, StatusCodes.Status400BadRequest);
+                    return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
 
                 var identity = _context.Identities.Include(x => x.IdentitiesRoles).Include(x => x.PhoneIdentities).Include(x => x.EmailIdentity)
                         .Where(x => x.IdentityId == identityIdDecrypted).FirstOrDefault();

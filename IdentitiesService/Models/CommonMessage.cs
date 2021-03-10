@@ -8,13 +8,12 @@ namespace IdentitiesService.Models
     public class CommonMessage
     {
         public static string RoleConflict = "Role is associated with other user.";
-        public static string BadRequest = "Pass valid data in model.";
+        public static string PassValidData = "Pass valid data.";
         public static string UserRoleRequired = "User role required.";
         public static string UserRoleNotFound = "User role not found.";
         public static string PhoneExist = "Phone number already exist.";   
         public static string EmailExist = "Email already exist.";
-        public static string UnableToInsertUserIntoDriver = "Unable to insert user into drivers.";
-        public static string UserInsert = "User created successfully.";
+        public static string IdentityInsert = "Identity created successfully.";
         public static string IncorrectUser = "Incorrect username.";
         public static string IncorrectPassword = "Incorrect password.";
         public static string InvalidPasswordFormat = "Incorrect encrypted password string format.";
@@ -25,7 +24,7 @@ namespace IdentitiesService.Models
         public static string PhoneNotExist = "Phone number does not exist in the system.";
         public static string PhoneRequired = "Phone number is required.";
         public static string OtpRequired = "Otp code is required.";
-        public static string UserNotExist = "User does not exits in the system.";
+        public static string IdentityNotExist = "Identity does not exits.";
         public static string UserNotAssociatedWithUserRole = "User does not associated with any user role.";
         public static string EmailRequired = "Email is required.";
         public static string RedirectUrlRequired = "Redirect Url is required.";   

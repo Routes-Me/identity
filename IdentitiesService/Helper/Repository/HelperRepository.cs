@@ -38,41 +38,30 @@ namespace IdentitiesService.Helper.Repository
 
         public string GenerateAccessToken(AccessTokenGenerator accessTokenGenerator, StringValues application)
         {
-            try
-            {
-                if (accessTokenGenerator == null)
-                    throw new ArgumentNullException(CommonMessage.TokenDataNull);
+            if (accessTokenGenerator == null)
+                throw new ArgumentNullException(CommonMessage.TokenDataNull);
 
-                var key = Encoding.UTF8.GetBytes(_appSettings.AccessSecretKey);
-                var tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.GetIdentifierUrl).Content).Identifier.ToString();
+            var key = Encoding.UTF8.GetBytes(_appSettings.AccessSecretKey);
+            var tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.GetIdentifierUrl).Content).Identifier.ToString();
 
-                var claimsData = new Claim[]
-                {
-                    new Claim("sub", string.IsNullOrEmpty(accessTokenGenerator.UserId) ? string.Empty : accessTokenGenerator.UserId.ToString()),
-                    new Claim("rol", JsonConvert.SerializeObject(accessTokenGenerator.Roles)),
-                    new Claim("ref", tokenId),
-                    application.ToString().ToLower() == "dashboard"
-                        ? new Claim("ins", string.IsNullOrEmpty(accessTokenGenerator.InstitutionId) ? string.Empty : accessTokenGenerator.InstitutionId.ToString())
-                        : null,
-                };
+            var claimsData = new Claim[]
+            {
+                new Claim("sub", string.IsNullOrEmpty(accessTokenGenerator.UserId) ? string.Empty : accessTokenGenerator.UserId.ToString()),
+                new Claim("rol", JsonConvert.SerializeObject(accessTokenGenerator.Roles)),
+                new Claim("ref", tokenId),
+                application.ToString().ToLower() == "dashboard"
+                    ? new Claim("ins", string.IsNullOrEmpty(accessTokenGenerator.InstitutionId) ? string.Empty : accessTokenGenerator.InstitutionId.ToString())
+                    : null,
+            };
 
-                var tokenString = new JwtSecurityToken(
-                                    issuer: _appSettings.SessionTokenIssuer,
-                                    audience: GetAudience(application),
-                                    expires: application.ToString().ToLower() == "screen" ? DateTime.UtcNow.AddMonths(1) : DateTime.UtcNow.AddMinutes(15),
-                                    claims: claimsData,
-                                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                                    );
-                return new JwtSecurityTokenHandler().WriteToken(tokenString);
-            }
-            catch (ArgumentNullException ex)
-            {
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            var tokenString = new JwtSecurityToken(
+                                issuer: _appSettings.SessionTokenIssuer,
+                                audience: GetAudience(application),
+                                expires: application.ToString().ToLower() == "screen" ? DateTime.UtcNow.AddMonths(1) : DateTime.UtcNow.AddMinutes(15),
+                                claims: claimsData,
+                                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                                );
+            return new JwtSecurityTokenHandler().WriteToken(tokenString);
         }
 
         public string GenerateRefreshToken(string accessToken)

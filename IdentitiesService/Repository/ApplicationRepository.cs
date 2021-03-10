@@ -110,7 +110,7 @@ namespace IdentitiesService.Repository
             try
             {
                 if (model == null)
-                    return ReturnResponse.ErrorResponse(CommonMessage.BadRequest, StatusCodes.Status400BadRequest);
+                    return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
 
                 var applicationData = _context.Applications.Where(x => x.Name.ToLower() == model.Name.ToLower()).FirstOrDefault();
                 if (applicationData != null)
@@ -136,7 +136,7 @@ namespace IdentitiesService.Repository
             try
             {
                 if (model == null)
-                    return ReturnResponse.ErrorResponse(CommonMessage.BadRequest, StatusCodes.Status400BadRequest);
+                    return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
 
                 var ApplicationIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.ApplicationId), _appSettings.PrimeInverse);
 

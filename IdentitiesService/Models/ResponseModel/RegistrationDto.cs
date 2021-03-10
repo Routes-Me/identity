@@ -2,7 +2,7 @@
 
 namespace IdentitiesService.Models.ResponseModel
 {
-    public class RegistrationModel
+    public class RegistrationDto
     {
         public string UserId { get; set; }
         public string IdentityId { get; set; }
