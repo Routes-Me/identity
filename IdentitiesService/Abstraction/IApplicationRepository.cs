@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using IdentitiesService.Models;
+﻿using IdentitiesService.Models;
 using IdentitiesService.Models.ResponseModel;
 
 namespace IdentitiesService.Abstraction

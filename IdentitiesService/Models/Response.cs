@@ -3,8 +3,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using IdentitiesService.Models.DBModels;
 using IdentitiesService.Models.ResponseModel;
 
@@ -68,21 +66,10 @@ namespace IdentitiesService.Models
 
     #region Login Response
 
-    public class ErrorResponse
-    {
-        public List<ErrorDetails> errors { get; set; }
-    }
-
     public class SignInResponse : Response
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string token { get; set; }
-    }
-
-    public class QrSignInResponse : Response
-    {
-        public LoginUser user { get; set; }
-        public string Token { get; set; }
     }
 
     public class AuthenticationResponse : Response
@@ -136,20 +123,6 @@ namespace IdentitiesService.Models
         public string InstitutionId { get; set; }
     }
 
-    public class OfficersResponse : Response
-    {
-        public Pagination pagination { get; set; }
-        public List<OfficersModel> data { get; set; }
-        public OfficersIncluded included { get; set; }
-    }
-
-    public class OfficersModel
-    {
-        public string OfficerId { get; set; }
-        public string UserId { get; set; }
-        public string InstitutionId { get; set; }
-    }
-
     public class OfficersIncluded
     {
         public List<IdentitiesDto> Users { get; set; }
@@ -190,15 +163,8 @@ namespace IdentitiesService.Models
         public string InstitutionId { get; set; }
     }
 
-    public class InstitutionsData
-    {
-        public Pagination pagination { get; set; }
-        public List<InstitutionsModel> data { get; set; }
-    }
-
     public class IdentifierResponse
     {
         public long Identifier { get; set; }
     }
-
 }
