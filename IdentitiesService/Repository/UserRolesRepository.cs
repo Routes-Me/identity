@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Obfuscation;
+using RoutesSecurity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,8 +30,8 @@ namespace IdentitiesService.Repository
             RolesResponse response = new RolesResponse();
             try
             {
-                var ApplicationIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(ApplicationId), _appSettings.PrimeInverse);
-                var PrivilegeIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(PrivilegeId), _appSettings.PrimeInverse);
+                var ApplicationIdDecrypted = Obfuscation.Decode(ApplicationId);
+                var PrivilegeIdDecrypted = Obfuscation.Decode(PrivilegeId);
                 var roles = _context.Roles.Where(x => x.ApplicationId == ApplicationIdDecrypted && x.PrivilegeId == PrivilegeIdDecrypted).FirstOrDefault();
                 if (roles == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.RoleNotFound, StatusCodes.Status404NotFound);
@@ -58,28 +58,28 @@ namespace IdentitiesService.Repository
             int totalCount = 0;
             try
             {
-                var ApplicationIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(ApplicationId), _appSettings.PrimeInverse);
-                var PrivilegeIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(PrivilegeId), _appSettings.PrimeInverse);
                 List<RolesModel> userRolesModelList = new List<RolesModel>();
-                if (ApplicationIdDecrypted == 0 && PrivilegeIdDecrypted == 0)
+                if (string.IsNullOrEmpty(ApplicationId) && string.IsNullOrEmpty(PrivilegeId))
                 {
                     userRolesModelList = (from userRole in _context.Roles
                                           select new RolesModel()
                                           {
-                                              ApplicationId = ObfuscationClass.EncodeId(userRole.ApplicationId, _appSettings.Prime).ToString(),
-                                              PrivilegeId = ObfuscationClass.EncodeId(userRole.PrivilegeId, _appSettings.Prime).ToString(),
+                                              ApplicationId = Obfuscation.Encode(userRole.ApplicationId),
+                                              PrivilegeId = Obfuscation.Encode(userRole.PrivilegeId),
                                           }).AsEnumerable().OrderBy(a => a.ApplicationId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
 
                     totalCount = _context.Roles.ToList().Count();
                 }
                 else
                 {
+                    var ApplicationIdDecrypted = Obfuscation.Decode(ApplicationId);
+                    var PrivilegeIdDecrypted = Obfuscation.Decode(PrivilegeId);
                     userRolesModelList = (from userRole in _context.Roles
                                           where userRole.PrivilegeId == PrivilegeIdDecrypted && userRole.ApplicationId == ApplicationIdDecrypted
                                           select new RolesModel()
                                           {
-                                              ApplicationId = ObfuscationClass.EncodeId(userRole.ApplicationId, _appSettings.Prime).ToString(),
-                                              PrivilegeId = ObfuscationClass.EncodeId(userRole.PrivilegeId, _appSettings.Prime).ToString(),
+                                              ApplicationId = Obfuscation.Encode(userRole.ApplicationId),
+                                              PrivilegeId = Obfuscation.Encode(userRole.PrivilegeId),
                                           }).AsEnumerable().OrderBy(a => a.ApplicationId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
 
                     totalCount = _context.Roles.Where(x => x.PrivilegeId == PrivilegeIdDecrypted && x.ApplicationId == ApplicationIdDecrypted).ToList().Count();
@@ -112,8 +112,8 @@ namespace IdentitiesService.Repository
                 if (model == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
 
-                var ApplicationIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.ApplicationId), _appSettings.PrimeInverse);
-                var PrivilegeIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.PrivilegeId), _appSettings.PrimeInverse);
+                var ApplicationIdDecrypted = Obfuscation.Decode(model.ApplicationId);
+                var PrivilegeIdDecrypted = Obfuscation.Decode(model.PrivilegeId);
 
                 Roles role = new Roles()
                 {
@@ -137,8 +137,8 @@ namespace IdentitiesService.Repository
                 if (model == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
 
-                var ApplicationIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.ApplicationId), _appSettings.PrimeInverse);
-                var PrivilegeIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.PrivilegeId), _appSettings.PrimeInverse);
+                var ApplicationIdDecrypted = Obfuscation.Decode(model.ApplicationId);
+                var PrivilegeIdDecrypted = Obfuscation.Decode(model.PrivilegeId);
 
                 var roles = _context.Roles.Where(x => x.ApplicationId == ApplicationIdDecrypted && x.PrivilegeId == PrivilegeIdDecrypted).FirstOrDefault();
                 if (roles == null)

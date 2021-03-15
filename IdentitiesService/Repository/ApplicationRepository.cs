@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Obfuscation;
+using RoutesSecurity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +29,7 @@ namespace IdentitiesService.Repository
         {
             try
             {
-                var ApplicationIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(id), _appSettings.PrimeInverse);
+                var ApplicationIdDecrypted = Obfuscation.Decode(id.ToString());
                 var applicationData = _context.Applications.Include(x => x.Roles).Where(x => x.ApplicationId == ApplicationIdDecrypted).FirstOrDefault();
                 if (applicationData == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.ApplicationNotFound, StatusCodes.Status404NotFound);
@@ -57,14 +57,13 @@ namespace IdentitiesService.Repository
             int totalCount = 0;
             try
             {
-                var ApplicationIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(id), _appSettings.PrimeInverse);
                 List<ApplicationsModel> ApplicationsModelList = new List<ApplicationsModel>();
-                if (ApplicationIdDecrypted == 0)
+                if (id == 0)
                 {
                     ApplicationsModelList = (from application in _context.Applications
                                              select new ApplicationsModel()
                                              {
-                                                 ApplicationId = ObfuscationClass.EncodeId(application.ApplicationId, _appSettings.Prime).ToString(),
+                                                 ApplicationId = Obfuscation.Encode(application.ApplicationId),
                                                  Name = application.Name,
                                                  CreatedAt =application.CreatedAt
                                              }).AsEnumerable().OrderBy(a => a.ApplicationId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
@@ -73,11 +72,12 @@ namespace IdentitiesService.Repository
                 }
                 else
                 {
+                    var ApplicationIdDecrypted = Obfuscation.Decode(id.ToString());
                     ApplicationsModelList = (from application in _context.Applications
                                              where application.ApplicationId == ApplicationIdDecrypted
                                              select new ApplicationsModel()
                                              {
-                                                 ApplicationId = ObfuscationClass.EncodeId(application.ApplicationId, _appSettings.Prime).ToString(),
+                                                 ApplicationId = Obfuscation.Encode(application.ApplicationId),
                                                  Name = application.Name,
                                                  CreatedAt = application.CreatedAt
                                              }).AsEnumerable().OrderBy(a => a.ApplicationId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
@@ -138,7 +138,7 @@ namespace IdentitiesService.Repository
                 if (model == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
 
-                var ApplicationIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.ApplicationId), _appSettings.PrimeInverse);
+                var ApplicationIdDecrypted = Obfuscation.Decode(model.ApplicationId);
 
                 var applicationData = _context.Applications.Where(x => x.ApplicationId == ApplicationIdDecrypted).FirstOrDefault();
                 if (applicationData == null)

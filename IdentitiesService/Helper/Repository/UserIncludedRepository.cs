@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Obfuscation;
+using RoutesSecurity;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -35,13 +35,13 @@ namespace IdentitiesService.Helper.Repository
             {
                 foreach (var roleItem in item.Roles)
                 {
-                    var ApplicationIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(roleItem.ApplicationId), _appSettings.PrimeInverse);
+                    var ApplicationIdDecrypted = Obfuscation.Decode(roleItem.ApplicationId);
                     var applicationDetails = _context.Applications.Where(x => x.ApplicationId == ApplicationIdDecrypted).FirstOrDefault();
                     if (applicationDetails != null)
                     {
                         ApplicationsModel objModel = new ApplicationsModel()
                         {
-                            ApplicationId = ObfuscationClass.EncodeId(applicationDetails.ApplicationId, _appSettings.Prime).ToString(),
+                            ApplicationId = Obfuscation.Encode(applicationDetails.ApplicationId),
                             Name = applicationDetails.Name
                         };
                         lstApplications.Add(objModel);
@@ -59,13 +59,13 @@ namespace IdentitiesService.Helper.Repository
             {
                 foreach (var roleItem in item.Roles)
                 {
-                    var PrivilegeIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(roleItem.PrivilegeId), _appSettings.PrimeInverse);
+                    var PrivilegeIdDecrypted = Obfuscation.Decode(roleItem.PrivilegeId);
                     var privilegeDetails = _context.Privileges.Where(x => x.PrivilegeId == PrivilegeIdDecrypted).FirstOrDefault();
                     if (privilegeDetails != null)
                     {
                         PrivilegesModel objModel = new PrivilegesModel()
                         {
-                            PrivilegeId = ObfuscationClass.EncodeId(privilegeDetails.PrivilegeId, _appSettings.Prime).ToString(),
+                            PrivilegeId = Obfuscation.Encode(privilegeDetails.PrivilegeId),
                             Name = privilegeDetails.Name
                         };
                         lstPrivileges.Add(objModel);

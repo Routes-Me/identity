@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Obfuscation;
+using RoutesSecurity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +31,7 @@ namespace IdentitiesService.Repository
         {
             try
             {
-                var PrivilegeIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(id), _appSettings.PrimeInverse);
+                var PrivilegeIdDecrypted = Obfuscation.Decode(id.ToString());
                 var privilegeData = _context.Privileges.Include(x => x.Roles).Where(x => x.PrivilegeId == PrivilegeIdDecrypted).FirstOrDefault();
                 if (privilegeData == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.PrivilegeNotFound, StatusCodes.Status404NotFound);
@@ -59,14 +59,13 @@ namespace IdentitiesService.Repository
             int totalCount = 0;
             try
             {
-                var PrivilegeIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(id), _appSettings.PrimeInverse);
                 List<PrivilegesModel> privilegesModelList = new List<PrivilegesModel>();
-                if (PrivilegeIdDecrypted == 0)
+                if (id == 0)
                 {
                     privilegesModelList = (from privilege in _context.Privileges
                                            select new PrivilegesModel()
                                            {
-                                               PrivilegeId = ObfuscationClass.EncodeId(privilege.PrivilegeId, _appSettings.Prime).ToString(),
+                                               PrivilegeId = Obfuscation.Encode(privilege.PrivilegeId),
                                                Name = privilege.Name,
                                                CreatedAt = privilege.CreatedAt
                                            }).AsEnumerable().OrderBy(a => a.PrivilegeId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
@@ -75,11 +74,12 @@ namespace IdentitiesService.Repository
                 }
                 else
                 {
+                    var PrivilegeIdDecrypted = Obfuscation.Decode(id.ToString());
                     privilegesModelList = (from privilege in _context.Privileges
                                            where privilege.PrivilegeId == PrivilegeIdDecrypted
                                            select new PrivilegesModel()
                                            {
-                                               PrivilegeId = ObfuscationClass.EncodeId(privilege.PrivilegeId, _appSettings.Prime).ToString(),
+                                               PrivilegeId = Obfuscation.Encode(privilege.PrivilegeId),
                                                Name = privilege.Name,
                                                CreatedAt = privilege.CreatedAt
                                            }).AsEnumerable().OrderBy(a => a.PrivilegeId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
@@ -141,7 +141,7 @@ namespace IdentitiesService.Repository
                 if (model == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
 
-                var PrivilegeIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.PrivilegeId), _appSettings.PrimeInverse);
+                var PrivilegeIdDecrypted = Obfuscation.Decode(model.PrivilegeId);
 
                 var privilegeData = _context.Privileges.Where(x => x.PrivilegeId == PrivilegeIdDecrypted).FirstOrDefault();
                 if (privilegeData == null)

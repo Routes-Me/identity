@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using IdentitiesService.Models;
 using IdentitiesService.Models.ResponseModel;
-using IdentitiesService.Models.DBModels;
 
 namespace IdentitiesService.Abstraction
 {

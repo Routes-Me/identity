@@ -41,8 +41,8 @@
     <Reference Include="Encryption">
       <HintPath>DLL\Encryption.dll</HintPath>
     </Reference>
-    <Reference Include="Obfuscation">
-      <HintPath>DLL\Obfuscation.dll</HintPath>
+    <Reference Include="RoutesSecurity">
+      <HintPath>DLL\RoutesSecurity.dll</HintPath>
     </Reference>
   </ItemGroup>
 

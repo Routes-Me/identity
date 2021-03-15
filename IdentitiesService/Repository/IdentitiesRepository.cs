@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Obfuscation;
+using RoutesSecurity;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -36,7 +36,7 @@ namespace IdentitiesService.Repository
         {
             try
             {
-                var identityIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(identityId), _appSettings.PrimeInverse);
+                var identityIdDecrypted = Obfuscation.Decode(identityId);
                 var identities = _context.Identities.Include(x => x.PhoneIdentities).Include(x => x.EmailIdentity).Include(x => x.IdentitiesRoles).Where(x => x.IdentityId == identityIdDecrypted).FirstOrDefault();
                 if (identities == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.IdentityNotFound, StatusCodes.Status404NotFound);
@@ -70,8 +70,8 @@ namespace IdentitiesService.Repository
         {
             try
             {
-                var identityIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.IdentityId), _appSettings.PrimeInverse);
-                int institutionIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(model.InstitutionId), _appSettings.PrimeInverse);
+                var identityIdDecrypted = Obfuscation.Decode(model.IdentityId);
+                int institutionIdDecrypted = Obfuscation.Decode(model.InstitutionId);
                 List<RolesModel> roles = new List<RolesModel>();
                 if (model == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
@@ -83,8 +83,8 @@ namespace IdentitiesService.Repository
 
                 foreach (var role in model.Roles)
                 {
-                    var userRole = _context.Roles.Where(x => x.ApplicationId == ObfuscationClass.DecodeId(Convert.ToInt32(role.ApplicationId), _appSettings.PrimeInverse)
-                    && x.PrivilegeId == ObfuscationClass.DecodeId(Convert.ToInt32(role.PrivilegeId), _appSettings.PrimeInverse)).FirstOrDefault();
+                    var userRole = _context.Roles.Where(x => x.ApplicationId == Obfuscation.Decode(role.ApplicationId)
+                    && x.PrivilegeId == Obfuscation.Decode(role.PrivilegeId)).FirstOrDefault();
                     if (userRole == null)
                     {
                         return ReturnResponse.ErrorResponse(CommonMessage.UserRoleNotFound, StatusCodes.Status404NotFound);
@@ -92,8 +92,8 @@ namespace IdentitiesService.Repository
                     else
                     {
                         RolesModel rolesModel = new RolesModel();
-                        rolesModel.ApplicationId = ObfuscationClass.EncodeId(userRole.ApplicationId, _appSettings.Prime).ToString();
-                        rolesModel.PrivilegeId = ObfuscationClass.EncodeId(userRole.PrivilegeId, _appSettings.Prime).ToString();
+                        rolesModel.ApplicationId = Obfuscation.Encode(userRole.ApplicationId);
+                        rolesModel.PrivilegeId = Obfuscation.Encode(userRole.PrivilegeId);
                         roles.Add(rolesModel);
                     }
                 }
@@ -109,8 +109,8 @@ namespace IdentitiesService.Repository
                     IdentitiesRoles usersroles = new IdentitiesRoles()
                     {
                         IdentityId = identityIdDecrypted,
-                        ApplicationId = ObfuscationClass.DecodeId(Convert.ToInt32(role.ApplicationId), _appSettings.PrimeInverse),
-                        PrivilegeId = ObfuscationClass.DecodeId(Convert.ToInt32(role.PrivilegeId), _appSettings.PrimeInverse)
+                        ApplicationId = Obfuscation.Decode(role.ApplicationId),
+                        PrivilegeId = Obfuscation.Decode(role.PrivilegeId)
                     };
                     _context.IdentitiesRoles.Add(usersroles);
                 }
@@ -147,7 +147,7 @@ namespace IdentitiesService.Repository
 
                 if (institutionIdDecrypted != 0)
                 {
-                    string EncodedUserId = ObfuscationClass.EncodeId(identity.UserId, _appSettings.Prime).ToString();
+                    string EncodedUserId = Obfuscation.Encode(identity.UserId);
                     var driverData = GetInstitutionIdsFromDrivers(EncodedUserId);
 
                     if (driverData == null || driverData.Count == 0)
@@ -197,11 +197,10 @@ namespace IdentitiesService.Repository
         {
             try
             {
-                var identityIdDecrypted = ObfuscationClass.DecodeId(Convert.ToInt32(identityId), _appSettings.PrimeInverse);
                 int totalCount = 0;
                 UsersGetResponse response = new UsersGetResponse();
                 List<IdentitiesDto> IdentitiesDtoList = new List<IdentitiesDto>();
-                if (identityIdDecrypted == 0)
+                if (string.IsNullOrEmpty(identityId))
                 {
                     var identitiessData = _context.Identities.Include(x => x.PhoneIdentities).Include(x => x.EmailIdentity).AsEnumerable().ToList()
                             .GroupBy(p => p.IdentityId).Select(g => g.First()).ToList().OrderBy(a => a.IdentityId)
@@ -209,8 +208,8 @@ namespace IdentitiesService.Repository
                     foreach (var item in identitiessData)
                     {
                         IdentitiesDto identitiesDto = new IdentitiesDto();
-                        identitiesDto.IdentityId = ObfuscationClass.EncodeId(item.IdentityId, _appSettings.Prime).ToString();
-                        identitiesDto.UserId = ObfuscationClass.EncodeId(item.UserId, _appSettings.Prime).ToString();
+                        identitiesDto.IdentityId = Obfuscation.Encode(item.IdentityId);
+                        identitiesDto.UserId = Obfuscation.Encode(item.UserId);
                         identitiesDto.Phone = item.PhoneIdentities.Where(x => x.IdentityId == item.IdentityId).Select(x => x.PhoneNumber).FirstOrDefault();
                         identitiesDto.Email = item.EmailIdentity.Email;
                         identitiesDto.CreatedAt = item.CreatedAt;
@@ -218,8 +217,8 @@ namespace IdentitiesService.Repository
                                           where identitiesRoles.IdentityId == item.IdentityId
                                           select new RolesModel
                                           {
-                                              ApplicationId = ObfuscationClass.EncodeId(identitiesRoles.ApplicationId, _appSettings.Prime).ToString(),
-                                              PrivilegeId = ObfuscationClass.EncodeId(identitiesRoles.PrivilegeId, _appSettings.Prime).ToString()
+                                              ApplicationId = Obfuscation.Encode(identitiesRoles.ApplicationId),
+                                              PrivilegeId = Obfuscation.Encode(identitiesRoles.PrivilegeId)
                                           }).ToList();
                         identitiesDto.Roles = identityRoles;
                         IdentitiesDtoList.Add(identitiesDto);
@@ -228,13 +227,14 @@ namespace IdentitiesService.Repository
                 }
                 else
                 {
+                    var identityIdDecrypted = Obfuscation.Decode(identityId);
                     var usersData = _context.Identities.Include(x => x.PhoneIdentities).Where(x => x.IdentityId == identityIdDecrypted)
                         .AsEnumerable().ToList().GroupBy(p => p.UserId).Select(g => g.First()).ToList().OrderBy(a => a.UserId).Skip((pageInfo.offset - 1) * pageInfo.limit).Take(pageInfo.limit).ToList();
 
                     foreach (var item in usersData)
                     {
                         IdentitiesDto usersModel = new IdentitiesDto();
-                        usersModel.UserId = ObfuscationClass.EncodeId(item.UserId, _appSettings.Prime).ToString();
+                        usersModel.UserId = Obfuscation.Encode(item.UserId);
                         usersModel.Phone = item.PhoneIdentities.Where(x => x.IdentityId == item.IdentityId).Select(x => x.PhoneNumber).FirstOrDefault();
                         usersModel.Email = item.EmailIdentity.Email;
                         usersModel.CreatedAt = item.CreatedAt;
@@ -242,8 +242,8 @@ namespace IdentitiesService.Repository
                                           where userroles.IdentityId == item.UserId
                                           select new RolesModel
                                           {
-                                              ApplicationId = ObfuscationClass.EncodeId(userroles.ApplicationId, _appSettings.Prime).ToString(),
-                                              PrivilegeId = ObfuscationClass.EncodeId(userroles.PrivilegeId, _appSettings.Prime).ToString()
+                                              ApplicationId = Obfuscation.Encode(userroles.ApplicationId),
+                                              PrivilegeId = Obfuscation.Encode(userroles.PrivilegeId)
                                           }).ToList();
                         usersModel.Roles = usersRoles;
                         IdentitiesDtoList.Add(usersModel);

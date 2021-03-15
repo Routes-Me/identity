@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using Obfuscation;
+using RoutesSecurity;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
@@ -144,7 +144,7 @@ namespace IdentitiesService.Helper.Repository
             RevokedRefreshTokens revokedToken = new RevokedRefreshTokens
             {
                 RefreshTokenReference =  refreshTokenData.Claims.First(c => c.Type == "ref").Value,
-                IdentityId = ObfuscationClass.DecodeId(Convert.ToInt32(refreshTokenData.Claims.First(c => c.Type == "sub").Value), _appSettings.PrimeInverse),
+                IdentityId = Obfuscation.Decode(refreshTokenData.Claims.First(c => c.Type == "sub").Value),
                 ExpiryAt = refreshTokenData.ValidTo,
                 RevokedAt = DateTime.Now
             };
@@ -162,7 +162,7 @@ namespace IdentitiesService.Helper.Repository
             RevokedAccessTokens revokedToken = new RevokedAccessTokens
             {
                 AccessTokenReference = accessTokenData.Claims.First(c => c.Type == "ref").Value,
-                IdentityId = ObfuscationClass.DecodeId(Convert.ToInt32(accessTokenData.Claims.First(c => c.Type == "sub").Value), _appSettings.PrimeInverse),
+                IdentityId = Obfuscation.Decode(accessTokenData.Claims.First(c => c.Type == "sub").Value),
                 ExpiryAt = accessTokenData.ValidTo,
                 RevokedAt = DateTime.Now
             };
@@ -215,7 +215,7 @@ namespace IdentitiesService.Helper.Repository
                         }
                     }
                 }
-                string UserId = ObfuscationClass.EncodeId(identity.UserId, _appSettings.Prime).ToString();
+                string UserId = Obfuscation.Encode(identity.UserId);
                 var client = new SendGridClient(_sendGridSettings.APIKey);
                 if (IsRoutesApp == true)
                 {

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
-using Obfuscation;
+using RoutesSecurity;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -67,14 +67,14 @@ namespace IdentitiesService.Repository
                 {
                     identityRoles.Add(new IdentitiesRoles()
                     {
-                        ApplicationId = ObfuscationClass.DecodeId(Convert.ToInt32(role.ApplicationId), _appSettings.PrimeInverse),
-                        PrivilegeId = ObfuscationClass.DecodeId(Convert.ToInt32(role.PrivilegeId), _appSettings.PrimeInverse)
+                        ApplicationId = Obfuscation.Decode(role.ApplicationId),
+                        PrivilegeId = Obfuscation.Decode(role.PrivilegeId)
                     });
                 }
 
                 Identities identity = new Identities()
                 {
-                    UserId = ObfuscationClass.DecodeId(Convert.ToInt32(registrationDto.UserId), _appSettings.PrimeInverse),
+                    UserId = Obfuscation.Decode(registrationDto.UserId),
                     CreatedAt = DateTime.Now,
                     EmailIdentity = new EmailIdentities {
                         Email = registrationDto.Email,
@@ -142,7 +142,7 @@ namespace IdentitiesService.Repository
 
         private string GetUsersInstitutions(Identities identities)
         {
-            var client = new RestClient(_appSettings.Host + _dependencies.InstitutionsUrl + ObfuscationClass.EncodeId(identities.IdentityId, _appSettings.Prime).ToString());
+            var client = new RestClient(_appSettings.Host + _dependencies.InstitutionsUrl + Obfuscation.Encode(identities.IdentityId));
             var request = new RestRequest(Method.GET);
             IRestResponse driverResponse = client.Execute(request);
             if (driverResponse.StatusCode != HttpStatusCode.OK)
@@ -166,7 +166,7 @@ namespace IdentitiesService.Repository
 
             AccessTokenGenerator accessTokenGenerator = new AccessTokenGenerator()
             {
-                UserId = ObfuscationClass.EncodeId(identity.UserId, _appSettings.Prime).ToString(),
+                UserId = Obfuscation.Encode(identity.UserId),
                 Roles = identitiesRoles,
                 InstitutionId = institutionIds
             };
@@ -194,7 +194,7 @@ namespace IdentitiesService.Repository
             string originalPassword = string.Empty;
             try
             {
-                int UserId = ObfuscationClass.DecodeId(Convert.ToInt32(model.UserId), _appSettings.PrimeInverse);
+                int UserId = Obfuscation.Decode(model.UserId);
                 Identities identity = new Identities();
                 if (model == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
