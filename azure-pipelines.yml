@@ -3,17 +3,17 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 trigger:
-- development
+- master
 
 resources:
 - repo: self
 
 variables:
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: '92285c16-df1e-47cd-97db-acd239100e82'
-  imageRepository: 'identities'
-  containerRegistry: 'stagenoruaebscontainerregistry.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/IdentitiesService/Dockerfile.stage'
+  dockerRegistryServiceConnection: 'c2222b18-e265-4714-891c-840c7a93532a'
+  imageRepository: 'userservice'
+  containerRegistry: 'noruaebscontainerregistry.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/UserService/Dockerfile'
   tag: '$(Build.BuildId)'
   
   # Agent VM image name
