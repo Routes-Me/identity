@@ -78,7 +78,7 @@ namespace IdentitiesService.Helper.Repository
 
             var tokenString = new JwtSecurityToken(
                 issuer: _appSettings.SessionTokenIssuer,
-                audience: tokenData.Audiences.FirstOrDefault(),
+                audience: _appSettings.RefreshTokenAudience,
                 expires: tokenData.Audiences.FirstOrDefault() == "https://screen.routesme.com" ? DateTime.UtcNow.AddMonths(6) : DateTime.UtcNow.AddMonths(3),
                 claims: claimsData,
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
