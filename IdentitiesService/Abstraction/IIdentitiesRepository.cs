@@ -7,7 +7,7 @@ namespace IdentitiesService.Abstraction
     public interface IIdentitiesRepository
     {
         dynamic DeleteIdentity(string identityId);
-        dynamic UpdateIdentity(RegistrationDto model);
+        dynamic UpdateIdentity(UpdateIdentitiesDto updateIdentitiesDto);
         dynamic GetIdentity(string identityId, Pagination pageInfo, string includeType);
     }
 }

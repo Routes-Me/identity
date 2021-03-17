@@ -24,6 +24,7 @@ namespace IdentitiesService.Repository
         private readonly AppSettings _appSettings;
         private readonly IUserIncludedRepository _userIncludedRepository;
         private readonly Dependencies _dependencies;
+
         public IdentitiesRepository(IOptions<AppSettings> appSettings, IdentitiesServiceContext context, IUserIncludedRepository userIncludedRepository, IOptions<Dependencies> dependencies)
         {
             _appSettings = appSettings.Value;
@@ -66,14 +67,14 @@ namespace IdentitiesService.Repository
             }
         }
 
-        public dynamic UpdateIdentity(RegistrationDto model)
+        public dynamic UpdateIdentity(UpdateIdentitiesDto updateIdentitiesDto)
         {
             try
             {
-                var identityIdDecrypted = Obfuscation.Decode(model.IdentityId);
-                int institutionIdDecrypted = Obfuscation.Decode(model.InstitutionId);
+                var identityIdDecrypted = Obfuscation.Decode(updateIdentitiesDto.IdentityId);
+                int institutionIdDecrypted = Obfuscation.Decode(updateIdentitiesDto.InstitutionId);
                 List<RolesModel> roles = new List<RolesModel>();
-                if (model == null)
+                if (updateIdentitiesDto == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
 
                 var identity = _context.Identities.Include(x => x.IdentitiesRoles).Include(x => x.PhoneIdentities).Include(x => x.EmailIdentity)
@@ -81,7 +82,7 @@ namespace IdentitiesService.Repository
                 if (identity == null)
                     return ReturnResponse.ErrorResponse(CommonMessage.IdentityNotFound, StatusCodes.Status404NotFound);
 
-                foreach (var role in model.Roles)
+                foreach (var role in updateIdentitiesDto.Roles)
                 {
                     var userRole = _context.Roles.Where(x => x.ApplicationId == Obfuscation.Decode(role.ApplicationId)
                     && x.PrivilegeId == Obfuscation.Decode(role.PrivilegeId)).FirstOrDefault();
@@ -116,7 +117,7 @@ namespace IdentitiesService.Repository
                 }
                 _context.SaveChanges();
 
-                if (!string.IsNullOrEmpty(model.PhoneNumber))
+                if (!string.IsNullOrEmpty(updateIdentitiesDto.PhoneNumber))
                 {
                     var userPhone = identity.PhoneIdentities.Where(x => x.IdentityId == identityIdDecrypted).FirstOrDefault();
                     if (userPhone == null)
@@ -124,22 +125,22 @@ namespace IdentitiesService.Repository
                         PhoneIdentities newPhone = new PhoneIdentities()
                         {
                             CreatedAt = DateTime.Now,
-                            PhoneNumber = model.PhoneNumber,
+                            PhoneNumber = updateIdentitiesDto.PhoneNumber,
                             IdentityId = identityIdDecrypted
                         };
                         _context.PhoneIdentities.Add(newPhone);
                     }
-                    else if (userPhone.PhoneNumber != model.PhoneNumber)
+                    else if (userPhone.PhoneNumber != updateIdentitiesDto.PhoneNumber)
                     {
-                        userPhone.PhoneNumber = model.PhoneNumber;
+                        userPhone.PhoneNumber = updateIdentitiesDto.PhoneNumber;
                         _context.PhoneIdentities.Update(userPhone);
                         _context.SaveChanges();
                     }
                 }
 
-                if (!string.IsNullOrEmpty(model.Email))
+                if (!string.IsNullOrEmpty(updateIdentitiesDto.Email))
                 {
-                    identity.EmailIdentity.Email = model.Email;
+                    identity.EmailIdentity.Email = updateIdentitiesDto.Email;
                 }
 
                 _context.Identities.Update(identity);
@@ -154,7 +155,7 @@ namespace IdentitiesService.Repository
                     {
                         DriversModel driver = new DriversModel()
                         {
-                            InstitutionId = model.InstitutionId,
+                            InstitutionId = updateIdentitiesDto.InstitutionId,
                             UserId = EncodedUserId
                         };
 
@@ -172,7 +173,7 @@ namespace IdentitiesService.Repository
                         DriversModel driver = new DriversModel()
                         {
                             DriverId = driverId,
-                            InstitutionId = model.InstitutionId,
+                            InstitutionId = updateIdentitiesDto.InstitutionId,
                             UserId = EncodedUserId
                         };
                         var client = new RestClient(_appSettings.Host + _dependencies.VehicleUrl);

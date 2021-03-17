@@ -38,67 +38,54 @@ namespace IdentitiesService.Repository
             _dependencies = dependencies.Value;
         }
 
-        public async Task<dynamic> SignUp(RegistrationDto registrationDto)
+        public async Task<Identities> SignUp(RegistrationDto registrationDto)
         {
-            UsersResponse response = new UsersResponse();
-            try
+            if (registrationDto == null || registrationDto.Roles.Count == 0 || string.IsNullOrEmpty(registrationDto.PhoneNumber) && string.IsNullOrEmpty(registrationDto.Email))
+                throw new ArgumentNullException(CommonMessage.PassValidData);
+
+            var email = _context.EmailIdentities.Where(x => x.Email == registrationDto.Email).FirstOrDefault();
+            if (email != null)
+                throw new ArgumentException(CommonMessage.EmailExist);
+
+            string originalPassword = string.Empty;
+            if (!string.IsNullOrEmpty(registrationDto.Password))
             {
-                string originalPassword = string.Empty;
-                if (registrationDto == null || registrationDto.Roles.Count == 0 || string.IsNullOrEmpty(registrationDto.PhoneNumber) && string.IsNullOrEmpty(registrationDto.Email))
-                    return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
+                originalPassword = await PasswordDecryptionAsync(registrationDto.Password);
+                if (originalPassword == "Unauthorized Access")
+                    throw new Exception(CommonMessage.IncorrectPassword);
+            }
 
-                var phone = _context.PhoneIdentities.Where(x => x.PhoneNumber == registrationDto.PhoneNumber).FirstOrDefault();
-                if (phone != null)
-                    return ReturnResponse.ErrorResponse(CommonMessage.PhoneExist, StatusCodes.Status409Conflict);
-
-                var email = _context.EmailIdentities.Where(x => x.Email == registrationDto.Email).FirstOrDefault();
-                if (email != null)
-                    return ReturnResponse.ErrorResponse(CommonMessage.EmailExist, StatusCodes.Status409Conflict);
-
-                if (!string.IsNullOrEmpty(registrationDto.Password))
+            List<IdentitiesRoles> identityRoles = new List<IdentitiesRoles>();
+            foreach (var role in registrationDto.Roles)
+            {
+                identityRoles.Add(new IdentitiesRoles()
                 {
-                    originalPassword = await PasswordDecryptionAsync(registrationDto.Password);
-                    if (originalPassword == "Unauthorized Access")
-                        return ReturnResponse.ErrorResponse(CommonMessage.IncorrectPassword, StatusCodes.Status400BadRequest);
-                }
+                    ApplicationId = Obfuscation.Decode(role.ApplicationId),
+                    PrivilegeId = Obfuscation.Decode(role.PrivilegeId)
+                });
+            }
 
-                List<IdentitiesRoles> identityRoles = new List<IdentitiesRoles>();
-                foreach (var role in registrationDto.Roles)
+            Identities identity = new Identities()
+            {
+                UserId = Obfuscation.Decode(registrationDto.UserId),
+                CreatedAt = DateTime.Now,
+                EmailIdentity = new EmailIdentities
                 {
-                    identityRoles.Add(new IdentitiesRoles()
-                    {
-                        ApplicationId = Obfuscation.Decode(role.ApplicationId),
-                        PrivilegeId = Obfuscation.Decode(role.PrivilegeId)
-                    });
-                }
-
-                Identities identity = new Identities()
-                {
-                    UserId = Obfuscation.Decode(registrationDto.UserId),
+                    Email = registrationDto.Email,
                     CreatedAt = DateTime.Now,
-                    EmailIdentity = new EmailIdentities {
-                        Email = registrationDto.Email,
-                        CreatedAt = DateTime.Now,
-                        Password = _passwordHasherRepository.Hash(originalPassword)
-                    },
-                    PhoneIdentities = new List<PhoneIdentities>
+                    Password = _passwordHasherRepository.Hash(originalPassword)
+                },
+                PhoneIdentities = new List<PhoneIdentities>
+                {
+                    new PhoneIdentities
                     {
-                        new PhoneIdentities { PhoneNumber = registrationDto.PhoneNumber, CreatedAt = DateTime.Now }
-                    },
-                    IdentitiesRoles = identityRoles
-                };
-                _context.Identities.Add(identity);
-                _context.SaveChanges();
-
-                response.status = true;
-                response.message = CommonMessage.IdentityInsert;
-                response.statusCode = StatusCodes.Status201Created;
-                return response;
-            }
-            catch (Exception ex)
-            {
-                return ReturnResponse.ErrorResponse(CommonMessage.ExceptionMessage + ex.Message, StatusCodes.Status400BadRequest);
-            }
+                        PhoneNumber = registrationDto.PhoneNumber,
+                        CreatedAt = DateTime.Now
+                    }
+                },
+                IdentitiesRoles = identityRoles
+            };
+            return identity;
         }
 
         public void Authenticate(EmailIdentities emailIdentities, string originalPassword)

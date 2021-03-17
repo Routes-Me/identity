@@ -123,21 +123,6 @@ namespace IdentitiesService.Models
         public string InstitutionId { get; set; }
     }
 
-    public class OfficersIncluded
-    {
-        public List<IdentitiesDto> Users { get; set; }
-        public List<Institutions> institutions { get; set; }
-    }
-
-    public class Institutions
-    {
-        public string InstitutionId { get; set; }
-        public string Name { get; set; }
-        public DateTime? CreatedAt { get; set; }
-        public string PhoneNumber { get; set; }
-        public string CountryIso { get; set; }
-    }
-
     public class PrivilegesResponse : Response
     {
         public Pagination pagination { get; set; }
