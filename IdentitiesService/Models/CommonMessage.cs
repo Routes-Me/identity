@@ -3,7 +3,7 @@
     public class CommonMessage
     {
         public static string RoleConflict = "Role is associated with other user.";
-        public static string PassValidData = "Pass valid data.";
+        public static string PassValidData = "Some data are missed in the request. Pass valid data.";
         public static string UserRoleNotFound = "User role not found.";
         public static string PhoneExist = "Phone number already exist.";   
         public static string EmailExist = "Email already exist.";

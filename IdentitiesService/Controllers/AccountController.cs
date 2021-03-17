@@ -27,14 +27,6 @@ namespace IdentitiesService.Controllers
         }
 
         [HttpPost]
-        [Route("signup")]
-        public async Task<IActionResult> Signup(RegistrationDto model)
-        {
-            dynamic response = await _accountRepository.SignUp(model);
-            return StatusCode(response.statusCode, response);
-        }
-
-        [HttpPost]
         [Route("authentications")]
         public async Task<IActionResult> AuthenticateUser(SigninModel signinModel)
         {
