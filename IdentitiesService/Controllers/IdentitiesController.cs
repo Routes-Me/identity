@@ -50,11 +50,11 @@ namespace IdentitiesService.Controllers
 
         [HttpPost]
         [Route("identities")]
-        public async Task<IActionResult> Signup(RegistrationDto registrationDto)
+        public async Task<IActionResult> PostIdentity(RegistrationDto registrationDto)
         {
             try
             {
-                Identities identity = await _accountsRepository.SignUp(registrationDto);
+                Identities identity = await _accountsRepository.PostIdentity(registrationDto);
                 _context.Identities.Add(identity);
                 await _context.SaveChangesAsync();
             }
