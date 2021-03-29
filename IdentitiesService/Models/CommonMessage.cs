@@ -52,6 +52,7 @@
         public static string InvalidData = "Pass valid data.";
         public static string TokenExpired = "Token is expired.";
         public static string TokenAlreadyRevoked = "This token is already revoked.";
+        public static string InvalidIdentityToken = "This token does not belong to a valid identity.";
         public static string RefreshTokenRevoked = "Refresh token revoked successfully.";
         public static string AccessTokenRevoked = "Access token revoked successfully.";
     }
