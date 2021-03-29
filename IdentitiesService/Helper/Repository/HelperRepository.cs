@@ -141,10 +141,15 @@ namespace IdentitiesService.Helper.Repository
             if (_context.RevokedRefreshTokens.Where(r => r.RefreshTokenReference == tokenreference).FirstOrDefault() != null)
                 throw new ArgumentException(CommonMessage.TokenAlreadyRevoked);
 
+            int userId = Obfuscation.Decode(refreshTokenData.Claims.First(c => c.Type == "sub").Value);
+            Identities identity = _context.Identities.Where(i => i.UserId == userId).FirstOrDefault();
+            if (identity == null)
+                throw new Exception(CommonMessage.InvalidIdentityToken);
+
             RevokedRefreshTokens revokedToken = new RevokedRefreshTokens
             {
                 RefreshTokenReference =  refreshTokenData.Claims.First(c => c.Type == "ref").Value,
-                IdentityId = Obfuscation.Decode(refreshTokenData.Claims.First(c => c.Type == "sub").Value),
+                IdentityId = identity.IdentityId,
                 ExpiryAt = refreshTokenData.ValidTo,
                 RevokedAt = DateTime.Now
             };
@@ -158,6 +163,11 @@ namespace IdentitiesService.Helper.Repository
             string tokenreference = accessTokenData.Claims.First(c => c.Type == "ref").Value;
             if (_context.RevokedAccessTokens.Where(r => r.AccessTokenReference == tokenreference).FirstOrDefault() != null)
                 throw new ArgumentException(CommonMessage.TokenAlreadyRevoked);
+
+            int userId = Obfuscation.Decode(accessTokenData.Claims.First(c => c.Type == "sub").Value);
+            Identities identity = _context.Identities.Where(i => i.UserId == userId).FirstOrDefault();
+            if (identity == null)
+                throw new Exception(CommonMessage.InvalidIdentityToken);
 
             RevokedAccessTokens revokedToken = new RevokedAccessTokens
             {

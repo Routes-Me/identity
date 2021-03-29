@@ -58,7 +58,7 @@ namespace IdentitiesService.Controllers
                 Secure = true
             };
             Response.Cookies.Append("refreshToken", authenticationResponse.refreshToken, cookieOptions);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpPost]
@@ -69,7 +69,7 @@ namespace IdentitiesService.Controllers
             try
             {
                 StringValues accessToken;
-                Request.Headers.TryGetValue("AccessToken", out accessToken);
+                Request.Headers.TryGetValue("Authorization", out accessToken);
                 response = _accountRepository.RenewTokens(tokenRenewModel.RefreshToken, accessToken);
             }
             catch (SecurityTokenExpiredException ex)
