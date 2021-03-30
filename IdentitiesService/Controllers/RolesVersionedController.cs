@@ -21,7 +21,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Get(string ApplicationId, string PrivilegeId, [FromQuery] Pagination pageInfo)
         {
             dynamic response = _rolesRepository.GetRoles(ApplicationId, PrivilegeId, pageInfo);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpPost]
@@ -29,7 +29,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Post(RolesModel model)
         {
             dynamic response = _rolesRepository.InsertRoles(model);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpPut]
@@ -37,7 +37,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Put(RolesModel model)
         {
             dynamic response = _rolesRepository.UpdateRoles(model);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpDelete]
@@ -45,7 +45,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Delete(string ApplicationId, string PrivilegeId)
         {
             dynamic response = _rolesRepository.DeleteRoles( ApplicationId,  PrivilegeId);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
     }
 }

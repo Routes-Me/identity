@@ -21,7 +21,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Post(ApplicationsModel model)
         {
             dynamic response = _applicationRepository.PostApplication(model);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpPut]
@@ -29,7 +29,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Put(ApplicationsModel model)
         {
             dynamic response = _applicationRepository.PutApplication(model);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpGet]
@@ -37,7 +37,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Get(int id, [FromQuery] Pagination pageInfo)
         {
             dynamic response = _applicationRepository.GetApplication(id, pageInfo);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpDelete]
@@ -45,7 +45,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Delete(int id)
         {
             dynamic response = _applicationRepository.DeleteApplication(id);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
     }
 }

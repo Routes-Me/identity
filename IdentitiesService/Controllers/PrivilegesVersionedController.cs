@@ -21,7 +21,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Post(PrivilegesModel model)
         {
             dynamic response = _privilegesRepository.PostPrivilege(model);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpPut]
@@ -29,7 +29,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Put(PrivilegesModel model)
         {
             dynamic response = _privilegesRepository.PutPrivilege(model);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpGet]
@@ -37,7 +37,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Get(int id, [FromQuery] Pagination pageInfo)
         {
             dynamic response = _privilegesRepository.GetPrivilege(id, pageInfo);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpDelete]
@@ -45,10 +45,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Delete(int id)
         {
             dynamic response = _privilegesRepository.DeletePrivilege(id);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
-
-
-
     }
 }

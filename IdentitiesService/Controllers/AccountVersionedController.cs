@@ -152,7 +152,7 @@ namespace IdentitiesService.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
         {
             dynamic response = await _accountRepository.ChangePassword(model);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpPost]
@@ -160,7 +160,7 @@ namespace IdentitiesService.Controllers
         public async Task<IActionResult> ForgotPassword(string email)
         {
             dynamic response = await _accountRepository.ForgotPassword(email);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
     }
 }

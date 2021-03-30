@@ -30,7 +30,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Get(string identityId, string Include, [FromQuery] Pagination pageInfo)
         {
             dynamic response = _identitesRepository.GetIdentity(identityId, pageInfo, Include);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpDelete]
@@ -38,7 +38,7 @@ namespace IdentitiesService.Controllers
         public IActionResult delete(string identityId)
         {
             dynamic response = _identitesRepository.DeleteIdentity(identityId);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpPut]
@@ -46,7 +46,7 @@ namespace IdentitiesService.Controllers
         public IActionResult Put(UpdateIdentitiesDto updateIdentitiesDto)
         {
             dynamic response = _identitesRepository.UpdateIdentity(updateIdentitiesDto);
-            return StatusCode((int)response.statusCode, response);
+            return StatusCode(response.statusCode, response);
         }
 
         [HttpPost]
