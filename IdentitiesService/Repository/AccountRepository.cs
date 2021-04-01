@@ -85,74 +85,56 @@ namespace IdentitiesService.Repository
             return identity;
         }
 
-        public void Authenticate(EmailIdentities emailIdentities, string originalPassword)
+        public void AuthenticatePassword(EmailIdentities emailIdentities, string originalPassword)
         {
-            if (emailIdentities == null || !_passwordHasherRepository.Check(emailIdentities.Password, originalPassword).Verified)
-            {
-                throw new Exception(CommonMessage.IdentityNotExist);
-            }
+            if (!_passwordHasherRepository.Check(emailIdentities.Password, originalPassword).Verified)
+                throw new ArgumentException(CommonMessage.IncorrectPassword);
         }
 
-        private async Task<string> Validate(SigninModel model) {
-            if (String.IsNullOrEmpty(model.Username) || String.IsNullOrEmpty(model.Password))
-            {
-                throw new Exception(CommonMessage.IncorrectUser);
-            }
-            string originalPassword = await PasswordDecryptionAsync(model.Password);
+        private async Task<string> Validate(SigninDto signinModel) {
+            if (string.IsNullOrEmpty(signinModel.Username))
+                throw new ArgumentNullException(CommonMessage.MissingUserName);
+            if (string.IsNullOrEmpty(signinModel.Password))
+                throw new ArgumentNullException(CommonMessage.MissingPassword);
+
+            string originalPassword = await PasswordDecryptionAsync(signinModel.Password);
             if (originalPassword == "Unauthorized Access")
-            {
-                throw new Exception(CommonMessage.IncorrectPassword);
-            }
+                throw new ArgumentException(CommonMessage.IncorrectPassword);
+
             return originalPassword;
         }
 
-        private List<IdentityRoleForToken> GetIdentitiesRoles(Identities identities)
+        private List<RolesDto> GetIdentitiesRoles(Identities identity)
         {
-            List<IdentityRoleForToken> identityRoles = (from identitiesRoles in _context.IdentitiesRoles
-                                  join roles in _context.Roles on new { x = identitiesRoles.PrivilegeId, y = identitiesRoles.ApplicationId } equals new { x = roles.PrivilegeId, y = roles.ApplicationId }
-                                  where identitiesRoles.IdentityId == identities.IdentityId
-                                  select new IdentityRoleForToken
-                                  {
-                                      Application = roles.Application.Name,
-                                      Privilege = roles.Privilege.Name,
-                                  }).ToList();
+            List<RolesDto> identityRoles = (from identitiesRoles in _context.IdentitiesRoles
+                                        where identitiesRoles.IdentityId == identity.IdentityId
+                                        select new RolesDto
+                                        {
+                                            Application = identitiesRoles.Roles.Application.Name,
+                                            Privilege = identitiesRoles.Roles.Privilege.Name,
+                                        }).ToList();
 
             if (identityRoles == null || identityRoles.Count == 0)
             {
-                throw new Exception(CommonMessage.IncorrectUserRole);
+                throw new ArgumentException(CommonMessage.IncorrectUserRole);
             }
             return identityRoles;
         }
 
-        private string GetUsersInstitutions(Identities identities)
+        public async Task<AuthenticationResponse> AuthenticateUser(SigninDto signinDto, StringValues application)
         {
-            var client = new RestClient(_appSettings.Host + _dependencies.InstitutionsUrl + Obfuscation.Encode(identities.IdentityId));
-            var request = new RestRequest(Method.GET);
-            IRestResponse driverResponse = client.Execute(request);
-            if (driverResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return string.Empty;
-            }
-            var institutionData = JsonConvert.DeserializeObject<InstitutionResponse>(driverResponse.Content);
-            return String.Join(",", institutionData.data.Select(x => x.InstitutionId));
-        }
-
-        public async Task<AuthenticationResponse> AuthenticateUser(SigninModel signinModel, StringValues application)
-        {
-            string originalPassword = originalPassword = await Validate(signinModel);
-            Identities identity = _context.Identities.Include(x => x.EmailIdentity).Where(x => x.EmailIdentity.Email == signinModel.Username).FirstOrDefault();
+            string originalPassword = await Validate(signinDto);
+            Identities identity = _context.Identities.Include(x => x.EmailIdentity).Where(x => x.EmailIdentity.Email == signinDto.Username).FirstOrDefault();
             if (identity == null)
-                throw new Exception(CommonMessage.IdentityNotExist);
+                throw new ArgumentException(CommonMessage.IncorrectUsername);
 
-            Authenticate(identity.EmailIdentity, originalPassword);
-            List<IdentityRoleForToken> identitiesRoles = GetIdentitiesRoles(identity);
-            string institutionIds = GetUsersInstitutions(identity);
+            AuthenticatePassword(identity.EmailIdentity, originalPassword);
+            List<RolesDto> identitiesRoles = GetIdentitiesRoles(identity);
 
             AccessTokenGenerator accessTokenGenerator = new AccessTokenGenerator()
             {
                 UserId = Obfuscation.Encode(identity.UserId),
-                Roles = identitiesRoles,
-                InstitutionId = institutionIds
+                Roles = identitiesRoles
             };
             string accessToken = _helper.GenerateAccessToken(accessTokenGenerator, application);
             string refreshToken = _helper.GenerateRefreshToken(accessToken);

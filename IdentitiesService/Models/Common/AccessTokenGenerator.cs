@@ -6,9 +6,6 @@ namespace IdentitiesService.Models.Common
     public class AccessTokenGenerator
     {
         public string UserId { get; set; }
-        public string Name { get; set; }
-        public List<IdentityRoleForToken> Roles { get; set; }
-        public string InstitutionId { get; set; }
+        public List<RolesDto> Roles { get; set; }
     }
-
 }

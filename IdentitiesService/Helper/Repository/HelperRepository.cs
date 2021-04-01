@@ -48,10 +48,7 @@ namespace IdentitiesService.Helper.Repository
             {
                 new Claim("sub", string.IsNullOrEmpty(accessTokenGenerator.UserId) ? string.Empty : accessTokenGenerator.UserId.ToString()),
                 new Claim("rol", JsonConvert.SerializeObject(accessTokenGenerator.Roles)),
-                new Claim("ref", tokenId),
-                application.ToString().ToLower() == "dashboard"
-                    ? new Claim("ins", string.IsNullOrEmpty(accessTokenGenerator.InstitutionId) ? string.Empty : accessTokenGenerator.InstitutionId.ToString())
-                    : null,
+                new Claim("ref", tokenId)
             };
 
             var tokenString = new JwtSecurityToken(
