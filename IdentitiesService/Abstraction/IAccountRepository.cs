@@ -9,7 +9,7 @@ namespace IdentitiesService.Abstraction
     public interface IAccountRepository
     {
         Task<Identities> PostIdentity(RegistrationDto registrationDto);
-        Task<AuthenticationResponse> AuthenticateUser(SigninModel signinModel, StringValues application);
+        Task<AuthenticationResponse> AuthenticateUser(SigninDto signinDto, StringValues application);
         TokenRenewalResponse RenewTokens(string refreshToken, string accessToken);
         dynamic RevokeRefreshToken(string refreshToken);
         dynamic RevokeAccessToken(string accessToken);

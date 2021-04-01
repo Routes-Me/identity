@@ -28,20 +28,24 @@ namespace IdentitiesService.Controllers
 
         [HttpPost]
         [Route("authentications")]
-        public async Task<IActionResult> AuthenticateUser(SigninModel signinModel)
+        public async Task<IActionResult> AuthenticateUser(SigninDto signinDto)
         {
             AuthenticationResponse authenticationResponse = new AuthenticationResponse();
             try
             {
                 StringValues application;
                 Request.Headers.TryGetValue("Application", out application);
-                authenticationResponse = await _accountRepository.AuthenticateUser(signinModel, application.FirstOrDefault());
+                authenticationResponse = await _accountRepository.AuthenticateUser(signinDto, application.FirstOrDefault());
                 _context.Identities.Update(authenticationResponse.user);
                 _context.SaveChanges();
             }
             catch (ArgumentNullException ex)
             {
                 return StatusCode(StatusCodes.Status422UnprocessableEntity, ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, ex.Message);
             }
             catch (Exception ex)
             {
