@@ -44,9 +44,9 @@ namespace IdentitiesService.Controllers
             {
                 return StatusCode(StatusCodes.Status422UnprocessableEntity, ex.Message);
             }
-            catch (ArgumentException ex)
+            catch (ArgumentException)
             {
-                return StatusCode(StatusCodes.Status401Unauthorized, ex.Message);
+                return StatusCode(StatusCodes.Status401Unauthorized);
             }
             catch (Exception ex)
             {
