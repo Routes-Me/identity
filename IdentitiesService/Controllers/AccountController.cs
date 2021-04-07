@@ -13,8 +13,9 @@ using IdentitiesService.Models.DBModels;
 
 namespace IdentitiesService.Controllers
 {
-    [Route("api")]
     [ApiController]
+    [ApiVersion( "1.0" )]
+    [Route("v{version:apiVersion}/")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountRepository _accountRepository;

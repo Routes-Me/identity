@@ -7,11 +7,8 @@ namespace IdentitiesService.Models.Common
 {
     public class AppSettings
     {
-        public string Secret { get; set; }
         public string AccessSecretKey { get; set; }
         public string RefreshSecretKey { get; set; }
-        public string ValidAudience { get; set; }
-        public string ValidIssuer { get; set; }
         public string SessionTokenIssuer { get; set; }
         public string RefreshTokenAudience { get; set; }
         public string Host { get; set; }
