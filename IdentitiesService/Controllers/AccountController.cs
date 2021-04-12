@@ -75,15 +75,16 @@ namespace IdentitiesService.Controllers
             {
                 StringValues accessToken;
                 Request.Headers.TryGetValue("Authorization", out accessToken);
+                accessToken = accessToken.ToString().Split(' ')[1];
                 response = _accountRepository.RenewTokens(tokenRenewModel.RefreshToken, accessToken);
             }
             catch (SecurityTokenExpiredException ex)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, ex.Message);
             }
-            catch (AccessViolationException ex)
+            catch (AccessViolationException)
             {
-                return StatusCode(StatusCodes.Status406NotAcceptable, ex.Message);
+                return StatusCode(StatusCodes.Status406NotAcceptable);
             }
             catch (Exception ex)
             {
