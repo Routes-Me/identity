@@ -152,4 +152,9 @@ namespace IdentitiesService.Models
     {
         public long Identifier { get; set; }
     }
+
+    public class OfficerResponse
+    {
+        public string OfficerId { get; set; }
+    }
 }
