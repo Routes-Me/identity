@@ -80,7 +80,7 @@ namespace IdentitiesService.Controllers
             {
                 StringValues accessToken;
                 Request.Headers.TryGetValue("Authorization", out accessToken);
-                accessToken = accessToken.ToString().Split(' ')[1];
+                accessToken = accessToken.ToString().Split(' ').LastOrDefault();
                 response = _accountRepository.RenewTokens(tokenRenewModel.RefreshToken, accessToken);
             }
             catch (SecurityTokenExpiredException ex)
