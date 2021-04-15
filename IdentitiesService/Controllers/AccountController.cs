@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -13,8 +14,9 @@ using IdentitiesService.Models.DBModels;
 
 namespace IdentitiesService.Controllers
 {
-    [Route("api")]
     [ApiController]
+    [ApiVersion( "1.0" )]
+    [Route("v{version:apiVersion}/")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountRepository _accountRepository;
@@ -47,6 +49,10 @@ namespace IdentitiesService.Controllers
             {
                 return StatusCode(StatusCodes.Status401Unauthorized);
             }
+            catch (HttpListenerException ex)
+            {
+                return StatusCode(ex.ErrorCode, ex.Message);
+            }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, CommonMessage.ExceptionMessage + ex.Message);
@@ -74,15 +80,16 @@ namespace IdentitiesService.Controllers
             {
                 StringValues accessToken;
                 Request.Headers.TryGetValue("Authorization", out accessToken);
+                accessToken = accessToken.ToString().Split(' ').LastOrDefault();
                 response = _accountRepository.RenewTokens(tokenRenewModel.RefreshToken, accessToken);
             }
             catch (SecurityTokenExpiredException ex)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, ex.Message);
             }
-            catch (AccessViolationException ex)
+            catch (AccessViolationException)
             {
-                return StatusCode(StatusCodes.Status406NotAcceptable, ex.Message);
+                return StatusCode(StatusCodes.Status406NotAcceptable);
             }
             catch (Exception ex)
             {

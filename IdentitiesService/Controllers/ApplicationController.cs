@@ -5,8 +5,9 @@ using IdentitiesService.Models.ResponseModel;
 
 namespace IdentitiesService.Controllers
 {
-    [Route("api")]
     [ApiController]
+    [ApiVersion( "1.0" )]
+    [Route("v{version:apiVersion}/")]
     public class ApplicationController : ControllerBase
     {
         private readonly IApplicationRepository _applicationRepository;

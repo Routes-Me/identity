@@ -18,6 +18,7 @@ using IdentitiesService.Helper.Abstraction;
 using IdentitiesService.Models.Common;
 using IdentitiesService.Models;
 using IdentitiesService.Models.DBModels;
+using IdentitiesService.Models.ResponseModel;
 
 namespace IdentitiesService.Helper.Repository
 {
@@ -42,13 +43,16 @@ namespace IdentitiesService.Helper.Repository
                 throw new ArgumentNullException(CommonMessage.TokenDataNull);
 
             var key = Encoding.UTF8.GetBytes(_appSettings.AccessSecretKey);
-            var tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.GetIdentifierUrl).Content).Identifier.ToString();
+            string tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.GetIdentifierUrl).Content).Identifier.ToString();
+            string officerId = JsonConvert.DeserializeObject<OfficerResponse>(GetAPI(_dependencies.GetOfficerIdUrl + accessTokenGenerator.UserId).Content).OfficerId.ToString();
+            ExtrasDto extrasDto = new ExtrasDto { OfficerId = officerId };
 
             var claimsData = new Claim[]
             {
-                new Claim("sub", string.IsNullOrEmpty(accessTokenGenerator.UserId) ? string.Empty : accessTokenGenerator.UserId.ToString()),
+                new Claim("sub", accessTokenGenerator.UserId.ToString()),
                 new Claim("rol", JsonConvert.SerializeObject(accessTokenGenerator.Roles)),
-                new Claim("ref", tokenId)
+                new Claim("ref", tokenId),
+                application.ToString().ToLower() == "dashboard" ? new Claim("ext", JsonConvert.SerializeObject(extrasDto)) : null
             };
 
             var tokenString = new JwtSecurityToken(
@@ -333,8 +337,11 @@ namespace IdentitiesService.Helper.Repository
             var request = new RestRequest(Method.GET);
             IRestResponse response = client.Execute(request);
 
-            if (response.StatusCode != HttpStatusCode.OK)
-                throw new HttpListenerException(400, CommonMessage.GetTokenIdFailed);
+            if (response.StatusCode == 0)
+                throw new HttpListenerException(400, CommonMessage.ConnectionFailure);
+
+            if (!response.IsSuccessful)
+                throw new HttpListenerException((int)response.StatusCode, response.Content);
 
             return response;
         }

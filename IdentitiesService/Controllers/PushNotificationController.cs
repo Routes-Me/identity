@@ -9,8 +9,9 @@ using System.IO;
 
 namespace IdentitiesService.Controllers
 {
-    [Route("api")]
     [ApiController]
+    [ApiVersion( "1.0" )]
+    [Route("v{version:apiVersion}/")]
     public class PushNotificationController : ControllerBase
     {
         [HttpPost]
