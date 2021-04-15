@@ -44,7 +44,7 @@ namespace IdentitiesService.Helper.Repository
 
             var key = Encoding.UTF8.GetBytes(_appSettings.AccessSecretKey);
             string tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.GetIdentifierUrl).Content).Identifier.ToString();
-            string officerId = JsonConvert.DeserializeObject<OfficerResponse>(GetAPI(_dependencies.GetOfficerIdUrl + accessTokenGenerator.UserId).Content).OfficerId.ToString();
+            string officerId = JsonConvert.DeserializeObject<OfficerResponse>(GetAPI(_dependencies.GetOfficerIdUrl, "userId=" + accessTokenGenerator.UserId).Content).OfficerId.ToString();
             ExtrasDto extrasDto = new ExtrasDto { OfficerId = officerId };
 
             var claimsData = new Claim[]
@@ -331,9 +331,11 @@ namespace IdentitiesService.Helper.Repository
             await Task.CompletedTask;
         }
 
-        private dynamic GetAPI(string url)
+        private dynamic GetAPI(string url, string query = "")
         {
-            var client = new RestClient(_appSettings.Host + url);
+            UriBuilder uriBuilder = new UriBuilder(_appSettings.Host + url);
+            uriBuilder.Query = query;
+            var client = new RestClient(uriBuilder.Uri);
             var request = new RestRequest(Method.GET);
             IRestResponse response = client.Execute(request);
 
