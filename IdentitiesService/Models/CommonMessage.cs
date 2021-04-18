@@ -53,6 +53,7 @@
         public static string TokenExpired = "Token is expired.";
         public static string TokenAlreadyRevoked = "This token is already revoked.";
         public static string InvalidIdentityToken = "This token does not belong to a valid identity.";
+        public static string OfficerNotFound = "Officer not found.";
         public static string RefreshTokenRevoked = "Refresh token revoked successfully.";
         public static string AccessTokenRevoked = "Access token revoked successfully.";
         public static string ConnectionFailure = "Request cannot be executed: unable to establish connection with the targeted machine.";
