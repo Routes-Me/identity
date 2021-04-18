@@ -348,7 +348,7 @@ namespace IdentitiesService.Helper.Repository
             return response;
         }
 
-        public UriBuilder AppendQueryToUrl(UriBuilder baseUri, string queryToAppend)
+        private UriBuilder AppendQueryToUrl(UriBuilder baseUri, string queryToAppend)
         {
             if (baseUri.Query != null && baseUri.Query.Length > 1)
                 baseUri.Query = baseUri.Query.Substring(1) + "&" + queryToAppend;
