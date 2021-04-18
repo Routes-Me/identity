@@ -334,7 +334,7 @@ namespace IdentitiesService.Helper.Repository
         private dynamic GetAPI(string url, string query = "")
         {
             UriBuilder uriBuilder = new UriBuilder(_appSettings.Host + url);
-            uriBuilder.Query = query;
+            uriBuilder = AppendQueryToUrl(uriBuilder, query);
             var client = new RestClient(uriBuilder.Uri);
             var request = new RestRequest(Method.GET);
             IRestResponse response = client.Execute(request);
@@ -346,6 +346,15 @@ namespace IdentitiesService.Helper.Repository
                 throw new HttpListenerException((int)response.StatusCode, response.Content);
 
             return response;
+        }
+
+        public UriBuilder AppendQueryToUrl(UriBuilder baseUri, string queryToAppend)
+        {
+            if (baseUri.Query != null && baseUri.Query.Length > 1)
+                baseUri.Query = baseUri.Query.Substring(1) + "&" + queryToAppend;
+            else
+                baseUri.Query = queryToAppend;
+            return baseUri;
         }
     }
 }
