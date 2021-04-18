@@ -44,8 +44,10 @@ namespace IdentitiesService.Helper.Repository
 
             var key = Encoding.UTF8.GetBytes(_appSettings.AccessSecretKey);
             string tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.GetIdentifierUrl).Content).Identifier.ToString();
-            string officerId = JsonConvert.DeserializeObject<OfficerResponse>(GetAPI(_dependencies.GetOfficerIdUrl + accessTokenGenerator.UserId).Content).OfficerId.ToString();
-            ExtrasDto extrasDto = new ExtrasDto { OfficerId = officerId };
+            List<OfficersDto> officers = JsonConvert.DeserializeObject<OfficersGetResponse>(GetAPI(_dependencies.GetOfficerIdUrl, "userId=" + accessTokenGenerator.UserId).Content).data;
+            if (!officers.Any() || officers == null)
+                throw new KeyNotFoundException(CommonMessage.OfficerNotFound);
+            ExtrasDto extrasDto = new ExtrasDto { OfficerId = officers.FirstOrDefault().OfficerId };
 
             var claimsData = new Claim[]
             {
@@ -331,9 +333,11 @@ namespace IdentitiesService.Helper.Repository
             await Task.CompletedTask;
         }
 
-        private dynamic GetAPI(string url)
+        private dynamic GetAPI(string url, string query = "")
         {
-            var client = new RestClient(_appSettings.Host + url);
+            UriBuilder uriBuilder = new UriBuilder(_appSettings.Host + url);
+            uriBuilder = AppendQueryToUrl(uriBuilder, query);
+            var client = new RestClient(uriBuilder.Uri);
             var request = new RestRequest(Method.GET);
             IRestResponse response = client.Execute(request);
 
@@ -344,6 +348,15 @@ namespace IdentitiesService.Helper.Repository
                 throw new HttpListenerException((int)response.StatusCode, response.Content);
 
             return response;
+        }
+
+        private UriBuilder AppendQueryToUrl(UriBuilder baseUri, string queryToAppend)
+        {
+            if (baseUri.Query != null && baseUri.Query.Length > 1)
+                baseUri.Query = baseUri.Query.Substring(1) + "&" + queryToAppend;
+            else
+                baseUri.Query = queryToAppend;
+            return baseUri;
         }
     }
 }

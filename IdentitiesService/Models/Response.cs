@@ -153,8 +153,12 @@ namespace IdentitiesService.Models
         public long Identifier { get; set; }
     }
 
-    public class OfficerResponse
+    public class OfficersGetResponse
     {
-        public string OfficerId { get; set; }
+        public Pagination pagination { get; set; }
+        public List<OfficersDto> data { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public JObject included { get; set; }
     }
 }

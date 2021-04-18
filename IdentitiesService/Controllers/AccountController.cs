@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +20,6 @@ namespace IdentitiesService.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountRepository _accountRepository;
-        private static readonly HttpClient HttpClient = new HttpClient();
         private readonly IdentitiesServiceContext _context;
         public AccountController(IAccountRepository accountRepository, IdentitiesServiceContext context)
         {
@@ -48,6 +47,10 @@ namespace IdentitiesService.Controllers
             catch (ArgumentException)
             {
                 return StatusCode(StatusCodes.Status401Unauthorized);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, ex.Message);
             }
             catch (HttpListenerException ex)
             {
