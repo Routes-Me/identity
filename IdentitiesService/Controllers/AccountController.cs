@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -56,18 +55,18 @@ namespace IdentitiesService.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, CommonMessage.ExceptionMessage + ex.Message);
             }
-            SignInResponse response = new SignInResponse();
-            response.message = CommonMessage.LoginSuccess;
-            response.status = true;
-            response.token = authenticationResponse.accessToken;
-            response.statusCode = StatusCodes.Status200OK;
+            SignInResponse response = new SignInResponse
+            {
+                token = authenticationResponse.accessToken
+            };
+
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true
             };
             Response.Cookies.Append("refreshToken", authenticationResponse.refreshToken, cookieOptions);
-            return StatusCode(response.statusCode, response);
+            return StatusCode(StatusCodes.Status200OK, response);
         }
 
         [HttpPost]
@@ -156,20 +155,29 @@ namespace IdentitiesService.Controllers
             return StatusCode(StatusCodes.Status200OK, CommonMessage.RefreshTokenRevoked);
         }
 
-        [HttpPut]
-        [Route("account/password")]
-        public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
-        {
-            dynamic response = await _accountRepository.ChangePassword(model);
-            return StatusCode((int)response.statusCode, response);
-        }
-
         [HttpPost]
-        [Route("account/password")]
-        public async Task<IActionResult> ForgotPassword(string email)
+        [Route("identities")]
+        public async Task<IActionResult> PostIdentity(RegistrationDto registrationDto)
         {
-            dynamic response = await _accountRepository.ForgotPassword(email);
-            return StatusCode((int)response.statusCode, response);
+            try
+            {
+                Identities identity = await _accountRepository.PostIdentity(registrationDto);
+                _context.Identities.Add(identity);
+                await _context.SaveChangesAsync();
+            }
+            catch (ArgumentNullException ex)
+            {
+                return StatusCode(StatusCodes.Status422UnprocessableEntity, ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, CommonMessage.ExceptionMessage + ex.Message);
+            }
+            return StatusCode(StatusCodes.Status201Created, CommonMessage.IdentityInsert);
         }
     }
 }

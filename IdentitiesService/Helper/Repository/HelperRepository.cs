@@ -3,15 +3,12 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using RoutesSecurity;
-using SendGrid;
-using SendGrid.Helpers.Mail;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Net;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using RestSharp;
 using IdentitiesService.Helper.Abstraction;
@@ -25,15 +22,13 @@ namespace IdentitiesService.Helper.Repository
     public class HelperRepository : IHelperRepository
     {
         private readonly AppSettings _appSettings;
-        private readonly SendGridSettings _sendGridSettings;
         private readonly IdentitiesServiceContext _context;
         private readonly Dependencies _dependencies;
 
-        public HelperRepository(IOptions<AppSettings> appSettings, IOptions<Dependencies> dependencies, IOptions<SendGridSettings> sendGridSettings, IdentitiesServiceContext context)
+        public HelperRepository(IOptions<AppSettings> appSettings, IOptions<Dependencies> dependencies, IdentitiesServiceContext context)
         {
             _appSettings = appSettings.Value;
             _dependencies = dependencies.Value;
-            _sendGridSettings = sendGridSettings.Value;
             _context = context;
         }
 
@@ -191,76 +186,6 @@ namespace IdentitiesService.Helper.Repository
             _context.SaveChangesAsync();
         }
 
-        public async Task<SendGrid.Response> SendConfirmationEmail(int userId, string email, string siteUrl)
-        {
-            try
-            {
-                var client = new SendGridClient(_sendGridSettings.APIKey);
-                var msg = new SendGridMessage()
-                {
-                    From = new EmailAddress(_sendGridSettings.From, _sendGridSettings.Name),
-                    Subject = _sendGridSettings.SubjectEmailVerify,
-                    HtmlContent = "Please <a href='" + siteUrl + "?id=" + userId + "'>click here</a> to verify."
-                };
-                msg.AddTo(new EmailAddress(email));
-                msg.SetClickTracking(false, false);
-                return await client.SendEmailAsync(msg);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public async Task<SendGrid.Response> VerifyEmail(string email, Identities identity)
-        {
-            try
-            {
-                bool IsRoutesApp = false;
-                foreach (var item in identity.IdentitiesRoles)
-                {
-                    var Application = _context.Applications.Where(x => x.ApplicationId == item.ApplicationId).FirstOrDefault();
-                    if (Application != null)
-                    {
-                        if (Application.ToString().ToLower() == "userapp")
-                        {
-                            IsRoutesApp = true;
-                        }
-                    }
-                }
-                string UserId = Obfuscation.Encode(identity.UserId);
-                var client = new SendGridClient(_sendGridSettings.APIKey);
-                if (IsRoutesApp == true)
-                {
-                    var msg = new SendGridMessage()
-                    {
-                        From = new EmailAddress(_sendGridSettings.From, _sendGridSettings.Name),
-                        Subject = _sendGridSettings.SubjectForgotPassword,
-                        HtmlContent = "<div style='background-color: white;max-width: 414px;margin: 0 auto;padding: 20px;min-width: 600px; line-height: 1.5; font-size: 18px;'> <h3>Hi, </h3><div>You recently requested to reset your password for your RoutesApp account. Click the button below to reset it.</div><div style='border-radius: 10px;background-color: #1a82e2;text-align: center;width: max-content;margin: auto;margin-top: 30px;margin-bottom: 30px;'><a href=" + _appSettings.RoutesAppUrl + UserId + " target='_blank' style='display: inline-block; padding: 16px 36px; font-family: &#39Source Sans Pro&#39, Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;'>Reset your password</a></div><div> If you did not request a password reset, please ignore this email or reply to let us know. This password reset is only valid for the next 30 minutes.</div><br/><div>Thanks,</div><div>RoutesApp Team</div><br/><div>If you asre having trouble clicking the password reset button, copy and paste the URL below into your web browser.</div><div><a href=" + _appSettings.RoutesAppUrl + UserId + "  target='_blank'>" + _appSettings.RoutesAppUrl + UserId + " </a></div></div>"
-                    };
-                    msg.AddTo(new EmailAddress(email));
-                    msg.SetClickTracking(false, false);
-                    return await client.SendEmailAsync(msg);
-                }
-                else
-                {
-                    var msg = new SendGridMessage()
-                    {
-                        From = new EmailAddress(_sendGridSettings.From, _sendGridSettings.Name),
-                        Subject = _sendGridSettings.SubjectForgotPassword,
-                        HtmlContent = "<div style='background-color: white;max-width: 414px;margin: 0 auto;padding: 20px;min-width: 600px; line-height: 1.5; font-size: 18px;'> <h3>Hi, </h3><div>You recently requested to reset your password for your RoutesApp account. Click the button below to reset it.</div><div style='border-radius: 10px;background-color: #1a82e2;text-align: center;width: max-content;margin: auto;margin-top: 30px;margin-bottom: 30px;'><a href=" + _appSettings.RoutesAppUrl + UserId + "  target='_blank' style='display: inline-block; padding: 16px 36px; font-family: &#39Source Sans Pro&#39, Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;'>Reset your password</a></div><div> If you did not request a password reset, please ignore this email or reply to let us know. This password reset is only valid for the next 30 minutes.</div><br/><div>Thanks,</div><div>RoutesApp Team</div><br/><div>If you asre having trouble clicking the password reset button, copy and paste the URL below into your web browser.</div><div><a href=" + _appSettings.RoutesAppUrl + UserId + "  target='_blank'>" + _appSettings.RoutesAppUrl + UserId + " </a></div></div>"
-                    };
-                    msg.AddTo(new EmailAddress(email));
-                    msg.SetClickTracking(false, false);
-                    return await client.SendEmailAsync(msg);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
         public dynamic VerifyToken(string token)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
@@ -320,17 +245,6 @@ namespace IdentitiesService.Helper.Repository
                 case "screen": return "https://screen.routesme.com";
                 default: return CommonMessage.UnknownApplication;
             }
-        }
-
-        private async Task PostAPI(string url, dynamic objectToSend)
-        {
-            var client = new RestClient(_appSettings.Host + url);
-            var request = new RestRequest(Method.POST);
-            string jsonToSend = JsonConvert.SerializeObject(objectToSend);
-            request.AddParameter("application/json; charset=utf-8", jsonToSend, ParameterType.RequestBody);
-            request.RequestFormat = DataFormat.Json;
-            IRestResponse response = client.Execute(request);
-            await Task.CompletedTask;
         }
 
         private dynamic GetAPI(string url, string query = "")

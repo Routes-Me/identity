@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace IdentitiesService.Models.Common
+﻿namespace IdentitiesService.Models.Common
 {
     public class AppSettings
     {
@@ -16,6 +11,5 @@ namespace IdentitiesService.Models.Common
         public string KeyForAndroid { get; set; }
         public string IVForDashboard { get; set; }
         public string KeyForDashboard { get; set; }
-        public string RoutesAppUrl { get; set; }
     }
 }
