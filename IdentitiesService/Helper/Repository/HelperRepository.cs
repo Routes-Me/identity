@@ -46,7 +46,7 @@ namespace IdentitiesService.Helper.Repository
             string tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.GetIdentifierUrl).Content).Identifier.ToString();
             List<OfficersDto> officers = JsonConvert.DeserializeObject<OfficersGetResponse>(GetAPI(_dependencies.GetOfficerIdUrl, "userId=" + accessTokenGenerator.UserId).Content).data;
             if (!officers.Any() || officers == null)
-                throw new KeyNotFoundException(CommonMessage.OfficerNotFound);
+                throw new ArgumentException(CommonMessage.OfficerNotFound);
             ExtrasDto extrasDto = new ExtrasDto { OfficerId = officers.FirstOrDefault().OfficerId };
 
             var claimsData = new Claim[]
