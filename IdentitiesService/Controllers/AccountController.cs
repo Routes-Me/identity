@@ -48,10 +48,6 @@ namespace IdentitiesService.Controllers
             {
                 return StatusCode(StatusCodes.Status401Unauthorized);
             }
-            catch (KeyNotFoundException ex)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, ex.Message);
-            }
             catch (HttpListenerException ex)
             {
                 return StatusCode(ex.ErrorCode, ex.Message);
