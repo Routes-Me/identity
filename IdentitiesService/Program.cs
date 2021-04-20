@@ -27,7 +27,6 @@ namespace IdentitiesService
             return WebHost.CreateDefaultBuilder(args).ConfigureAppConfiguration((hostingContext, config) =>
             {
                 config.SetBasePath(Directory.GetCurrentDirectory());
-                config.AddJsonFile("twilio.json", optional: false, reloadOnChange: false);
             })
                 .UseStartup<Startup>();
         }

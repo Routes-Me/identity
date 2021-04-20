@@ -9,6 +9,5 @@ namespace IdentitiesService.Models.ResponseModel
         public string PhoneNumber { get; set; }
         public string Password { get; set; }
         public RolesDto Roles { get; set; }
-        public string InstitutionId { get; set; }
     }
 }

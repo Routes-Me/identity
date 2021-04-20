@@ -2,9 +2,7 @@
 {
     public class CommonMessage
     {
-        public static string RoleConflict = "Role is associated with other user.";
         public static string PassValidData = "Some data are missed in the request. Pass valid data.";
-        public static string UserRoleNotFound = "User role not found.";
         public static string PhoneExist = "Phone number already exist.";   
         public static string EmailExist = "Email already exist.";
         public static string IdentityInsert = "Identity created successfully.";
@@ -16,35 +14,8 @@
         public static string LoginSuccess = "Login successfully.";
         public static string RenewSuccess = "Tokens Renewed successfully.";
         public static string ExceptionMessage = "Something went wrong. Error Message - ";
-        public static string IdentityNotFound = "Identity not found.";
-        public static string ChangePasswordSuccess = "Password updated successfully.";
-        public static string EmailNotFound = "Email does not exist in the system";
-        public static string ForgotPasswordFailed = "Something went wrong while sending password to your email. Please contact to the support team.";
-        public static string ForgotPasswordSuccess = "Password has been sent to the given email address. Please check your inbox.";
-        public static string IdentityDelete = "Identity deleted successfully.";
-        public static string IdentityUpdate = "Identity updated successfully.";
-        public static string IdentityRetrived = "Identities retrived successfully.";
-        public static string RoleNotFound = "Role not found.";
-        public static string RoleDelete = "Role deleted successfully.";
-        public static string RoleRetrived = "Roles retrived successfully.";
-        public static string RoleInsert = "Role inserted successfully.";
-        public static string RoleUpdate = "Role updated successfully.";
         public static string PrivilegeNotFound = "Privileges not found.";
-        public static string PrivilegeDelete = "Privileges deleted successfully.";
-        public static string PrivilegeRetrived = "Privileges retrived successfully.";
-        public static string PrivilegeInsert = "Privileges inserted successfully.";
-        public static string PrivilegeUpdate = "Privileges updated successfully.";
-        public static string PrivilegeExists = "Privileges already exists.";
         public static string ApplicationNotFound = "Applications not found.";
-        public static string ApplicationDelete = "Applications deleted successfully.";
-        public static string ApplicationRetrived = "Applications retrived successfully.";
-        public static string ApplicationInsert = "Applications inserted successfully.";
-        public static string ApplicationUpdate = "Applications updated successfully.";
-        public static string ApplicationExists = " Applications already exists.";
-        public static string PrivilegeAssociatedWithRole = "Privileges associated with role.";
-        public static string PrivilegeAssociatedWithUserRole = "Privileges associated with user role.";
-        public static string ApplicationAssociatedWithRole = "Application associated with role.";
-        public static string ApplicationAssociatedWithUserRole = "Application associated with user role.";
         public static string UnknownApplication = "No Application is specified in request";
         public static string TokenDataNull = "Token data is null.";
         public static string Unauthorized = "You are unauthorized to perform this operation.";

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace IdentitiesService.Helper.Models
+﻿namespace IdentitiesService.Helper.Models
 {
     public class HashingOptions
     {

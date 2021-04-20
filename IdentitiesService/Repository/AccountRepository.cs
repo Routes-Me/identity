@@ -154,39 +154,6 @@ namespace IdentitiesService.Repository
             return _helper.RenewTokens(refreshToken, accessToken);
         }
 
-        public async Task<dynamic> ChangePassword(ChangePasswordModel model)
-        {
-            UsersResponse response = new UsersResponse();
-            string originalPassword = string.Empty;
-            try
-            {
-                int UserId = Obfuscation.Decode(model.UserId);
-                Identities identity = new Identities();
-                if (model == null)
-                    return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
-
-                identity = _context.Identities.Where(x => x.UserId == UserId).FirstOrDefault();
-                if (identity == null)
-                        return ReturnResponse.ErrorResponse(CommonMessage.IdentityNotFound, StatusCodes.Status404NotFound);
-
-                if (!string.IsNullOrEmpty(model.NewPassword))
-                {
-                    originalPassword = await PasswordDecryptionAsync(model.NewPassword);
-                    if (originalPassword == "Unauthorized Access")
-                        return ReturnResponse.ErrorResponse(CommonMessage.IncorrectPassword, StatusCodes.Status400BadRequest);
-                }
-
-                identity.EmailIdentity.Password = _passwordHasherRepository.Hash(originalPassword);
-                _context.Identities.Update(identity);
-                _context.SaveChanges();
-                return ReturnResponse.SuccessResponse(CommonMessage.ChangePasswordSuccess, false);
-            }
-            catch (Exception ex)
-            {
-                return ReturnResponse.ExceptionResponse(ex);
-            }
-        }
-
         public dynamic RevokeRefreshToken(string refreshToken)
         {
             return _helper.RevokeRefreshToken(refreshToken);
@@ -195,30 +162,6 @@ namespace IdentitiesService.Repository
         public dynamic RevokeAccessToken(string accessToken)
         {
             return _helper.RevokeAccessToken(accessToken);
-        }
-
-        public async Task<dynamic> ForgotPassword(string email)
-        {
-            EmailResponse response = new EmailResponse();
-            try
-            {
-                if (string.IsNullOrEmpty(email))
-                    return ReturnResponse.ErrorResponse(CommonMessage.PassValidData, StatusCodes.Status400BadRequest);
-
-                var identity = _context.Identities.Where(x => x.EmailIdentity.Email.ToLower() == email.ToLower()).FirstOrDefault();
-                if (identity == null)
-                    return ReturnResponse.ErrorResponse(CommonMessage.EmailNotFound, StatusCodes.Status404NotFound);
-
-                var res = await _helper.VerifyEmail(email, identity);
-                if (res.StatusCode != HttpStatusCode.Accepted)
-                    return ReturnResponse.ErrorResponse(CommonMessage.ForgotPasswordFailed, StatusCodes.Status500InternalServerError);
-
-                return ReturnResponse.SuccessResponse(CommonMessage.ForgotPasswordSuccess, false);
-            }
-            catch (Exception ex)
-            {
-                return ReturnResponse.ExceptionResponse(ex);
-            }
         }
 
         public async Task<string> PasswordDecryptionAsync(string Password)
