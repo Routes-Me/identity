@@ -59,10 +59,13 @@ namespace IdentitiesService
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            services.AddScoped<IRolesRepository, RolesRepository>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IHelperRepository, HelperRepository>();
             services.AddScoped<IPasswordHasherRepository, PasswordHasherRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<IPrivilegesRepository, PrivilegesRepository>();
+            services.AddScoped<IApplicationRepository, ApplicationRepository>();
 
             // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
