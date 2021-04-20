@@ -141,7 +141,7 @@ namespace IdentitiesService.Repository
 
             return new AuthenticationResponse()
             {
-                user = identity,
+                identity = identity,
                 accessToken = accessToken,
                 refreshToken = refreshToken
             };

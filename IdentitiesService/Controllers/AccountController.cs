@@ -36,7 +36,7 @@ namespace IdentitiesService.Controllers
                 StringValues application;
                 Request.Headers.TryGetValue("Application", out application);
                 authenticationResponse = await _accountRepository.AuthenticateUser(signinDto, application.FirstOrDefault());
-                _context.Identities.Update(authenticationResponse.user);
+                _context.Identities.Update(authenticationResponse.identity);
                 _context.SaveChanges();
             }
             catch (ArgumentNullException ex)
