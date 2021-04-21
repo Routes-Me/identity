@@ -59,6 +59,7 @@ namespace IdentitiesService
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            services.AddScoped<IIdentitiesRepository, IdentitiesRepository>();
             services.AddScoped<IRolesRepository, RolesRepository>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IHelperRepository, HelperRepository>();
