@@ -154,30 +154,5 @@ namespace IdentitiesService.Controllers
             }
             return StatusCode(StatusCodes.Status200OK, CommonMessage.RefreshTokenRevoked);
         }
-
-        [HttpPost]
-        [Route("identities")]
-        public async Task<IActionResult> PostIdentity(RegistrationDto registrationDto)
-        {
-            try
-            {
-                Identities identity = await _accountRepository.PostIdentity(registrationDto);
-                _context.Identities.Add(identity);
-                await _context.SaveChangesAsync();
-            }
-            catch (ArgumentNullException ex)
-            {
-                return StatusCode(StatusCodes.Status422UnprocessableEntity, ex.Message);
-            }
-            catch (ArgumentException ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, CommonMessage.ExceptionMessage + ex.Message);
-            }
-            return StatusCode(StatusCodes.Status201Created, CommonMessage.IdentityInsert);
-        }
     }
 }

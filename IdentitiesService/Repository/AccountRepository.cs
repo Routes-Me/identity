@@ -38,53 +38,6 @@ namespace IdentitiesService.Repository
             _dependencies = dependencies.Value;
         }
 
-        public async Task<Identities> PostIdentity(RegistrationDto registrationDto)
-        {
-            if (registrationDto == null || registrationDto.Roles == null || string.IsNullOrEmpty(registrationDto.PhoneNumber) || string.IsNullOrEmpty(registrationDto.Email) || string.IsNullOrEmpty(registrationDto.Roles.Application) || string.IsNullOrEmpty(registrationDto.Roles.Privilege))
-                throw new ArgumentNullException(CommonMessage.PassValidData);
-
-            var email = _context.EmailIdentities.Where(x => x.Email == registrationDto.Email).FirstOrDefault();
-            if (email != null)
-                throw new ArgumentException(CommonMessage.EmailExist);
-
-            string originalPassword = string.Empty;
-            if (!string.IsNullOrEmpty(registrationDto.Password))
-            {
-                originalPassword = await PasswordDecryptionAsync(registrationDto.Password);
-                if (originalPassword == "Unauthorized Access")
-                    throw new Exception(CommonMessage.IncorrectPassword);
-            }
-
-            Identities identity = new Identities()
-            {
-                UserId = Obfuscation.Decode(registrationDto.UserId),
-                CreatedAt = DateTime.Now,
-                EmailIdentity = new EmailIdentities
-                {
-                    Email = registrationDto.Email,
-                    CreatedAt = DateTime.Now,
-                    Password = _passwordHasherRepository.Hash(originalPassword)
-                },
-                PhoneIdentities = new List<PhoneIdentities>
-                {
-                    new PhoneIdentities
-                    {
-                        PhoneNumber = registrationDto.PhoneNumber,
-                        CreatedAt = DateTime.Now
-                    }
-                },
-                IdentitiesRoles = new List<IdentitiesRoles>()
-                {
-                    new IdentitiesRoles
-                    {
-                        ApplicationId = GetApplicationId(registrationDto.Roles.Application),
-                        PrivilegeId = GetPrivilegeId(registrationDto.Roles.Privilege)
-                    }
-                }
-            };
-            return identity;
-        }
-
         public void AuthenticatePassword(EmailIdentities emailIdentities, string originalPassword)
         {
             if (!_passwordHasherRepository.Check(emailIdentities.Password, originalPassword).Verified)
@@ -106,13 +59,11 @@ namespace IdentitiesService.Repository
 
         private List<RolesDto> GetIdentitiesRoles(Identities identity)
         {
-            List<RolesDto> identityRoles = (from identitiesRoles in _context.IdentitiesRoles
-                                        where identitiesRoles.IdentityId == identity.IdentityId
-                                        select new RolesDto
-                                        {
-                                            Application = identitiesRoles.Roles.Application.Name,
-                                            Privilege = identitiesRoles.Roles.Privilege.Name,
-                                        }).ToList();
+            List<RolesDto> identityRoles = _context.IdentitiesRoles.Where(i => i.IdentityId == identity.IdentityId)
+                    .Select(i => new RolesDto {
+                        Application = i.Roles.Application.Name,
+                        Privilege = i.Roles.Privilege.Name
+                    }).ToList();
 
             if (identityRoles == null || identityRoles.Count == 0)
             {
@@ -170,22 +121,6 @@ namespace IdentitiesService.Repository
                 return await encryption.DecodeAndDecrypt(Password, _appSettings.IVForDashboard, _appSettings.KeyForDashboard);
             else
                 return await encryption.DecodeAndDecrypt(Password, _appSettings.IVForAndroid, _appSettings.KeyForAndroid);
-        }
-
-        private int GetApplicationId(string application)
-        {
-            int applicationId = _context.Applications.Where(a => a.Name == application).FirstOrDefault().ApplicationId;
-            if (applicationId == 0)
-                throw new ArgumentNullException(CommonMessage.ApplicationNotFound);
-            return applicationId;
-        }
-
-        private int GetPrivilegeId(string privilege)
-        {
-            int privilegeId = _context.Privileges.Where(a => a.Name == privilege).FirstOrDefault().PrivilegeId;
-            if (privilegeId == 0)
-                throw new ArgumentNullException(CommonMessage.PrivilegeNotFound);
-            return privilegeId;
         }
     }
 }

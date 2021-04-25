@@ -39,10 +39,10 @@ namespace IdentitiesService.Helper.Repository
 
             var key = Encoding.UTF8.GetBytes(_appSettings.AccessSecretKey);
             string tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.GetIdentifierUrl).Content).Identifier.ToString();
-            List<OfficersDto> officers = JsonConvert.DeserializeObject<OfficersGetResponse>(GetAPI(_dependencies.GetOfficerIdUrl, "userId=" + accessTokenGenerator.UserId).Content).data;
-            if (!officers.Any() || officers == null)
-                throw new ArgumentException(CommonMessage.OfficerNotFound);
-            ExtrasDto extrasDto = new ExtrasDto { OfficerId = officers.FirstOrDefault().OfficerId };
+
+            ExtrasDto extrasDto = new ExtrasDto();
+            if (application.ToString().ToLower() == "dashboard")
+                extrasDto = new ExtrasDto { OfficerId = GetOfficerId(accessTokenGenerator.UserId) };
 
             var claimsData = new Claim[]
             {
@@ -271,6 +271,14 @@ namespace IdentitiesService.Helper.Repository
             else
                 baseUri.Query = queryToAppend;
             return baseUri;
+        }
+
+        private string GetOfficerId(string userId)
+        {
+            List<OfficersDto> officers = JsonConvert.DeserializeObject<OfficersGetResponse>(GetAPI(_dependencies.GetOfficerIdUrl, "userId=" + userId).Content).data;
+            if (!officers.Any() || officers == null)
+                throw new ArgumentException(CommonMessage.OfficerNotFound);
+            return officers.FirstOrDefault().OfficerId ;
         }
     }
 }
