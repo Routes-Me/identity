@@ -77,7 +77,7 @@ namespace IdentitiesService.Helper.Repository
             var tokenString = new JwtSecurityToken(
                 issuer: _appSettings.SessionTokenIssuer,
                 audience: _appSettings.RefreshTokenAudience,
-                expires: tokenData.Audiences.FirstOrDefault() == "https://screen.routesme.com" ? DateTime.UtcNow.AddMonths(6) : DateTime.UtcNow.AddMonths(3),
+                expires: tokenData.Audiences.FirstOrDefault() == _appSettings.ScreenAudience ? DateTime.UtcNow.AddMonths(6) : DateTime.UtcNow.AddMonths(3),
                 claims: claimsData,
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             );
@@ -114,7 +114,7 @@ namespace IdentitiesService.Helper.Repository
             string newAccessToken = new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken(
                 issuer: _appSettings.SessionTokenIssuer,
                 audience: tokenData.Audiences.FirstOrDefault(),
-                expires: tokenData.Audiences.FirstOrDefault() == "https://screen.routesme.com" ? DateTime.UtcNow.AddMonths(1) : DateTime.UtcNow.AddMinutes(15),
+                expires: tokenData.Audiences.FirstOrDefault() == _appSettings.ScreenAudience ? DateTime.UtcNow.AddMonths(1) : DateTime.UtcNow.AddMinutes(15),
                 claims: tokenData.Claims,
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             ));
@@ -240,9 +240,10 @@ namespace IdentitiesService.Helper.Repository
         {
             switch (application.ToString().ToLower())
             {
-                case "dashboard": return "https://dashboard.routesme.com";
-                case "app": return "https://app.routesme.com";
-                case "screen": return "https://screen.routesme.com";
+                case "dashboard": return _appSettings.DashboardAudience;
+                case "routes-app": return _appSettings.RoutesAppAudience;
+                case "screen": return _appSettings.ScreenAudience;
+                case "bus-validator": return _appSettings.BusValidatorAudience;
                 default: return CommonMessage.UnknownApplication;
             }
         }
