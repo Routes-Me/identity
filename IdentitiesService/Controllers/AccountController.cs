@@ -156,13 +156,13 @@ namespace IdentitiesService.Controllers
         }
 
         [HttpGet]
-        [Route("tokens/registrations")]
-        public IActionResult GenerateRegistrationToken()
+        [Route("tokens/invitations")]
+        public IActionResult GenerateInvitationToken()
         {
-            RegistrationTokenResponse response = new RegistrationTokenResponse();
+            InvitationTokenResponse response = new InvitationTokenResponse();
             try
             {
-                response.registrationToken = _accountRepository.GenerateRegistrationToken();
+                response.invitationToken = _accountRepository.GenerateInvitationToken();
             }
             catch (Exception ex)
             {

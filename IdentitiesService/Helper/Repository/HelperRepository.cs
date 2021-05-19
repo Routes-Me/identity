@@ -201,7 +201,7 @@ namespace IdentitiesService.Helper.Repository
             return tokenData;
         }
 
-        public string GenerateRegistrationToken()
+        public string GenerateInvitationToken()
         {
             byte[] key = Encoding.UTF8.GetBytes(_appSettings.RefreshSecretKey);
             var tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.IdentifierUrl).Content).Identifier.ToString();
@@ -211,7 +211,7 @@ namespace IdentitiesService.Helper.Repository
             };
             var tokenString = new JwtSecurityToken(
                 issuer: _appSettings.TokenIssuer,
-                audience: _appSettings.RegistrationTokenAudience,
+                audience: _appSettings.InvitationTokenAudience,
                 expires: DateTime.UtcNow.AddHours(48),
                 claims: claimsData,
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

@@ -84,9 +84,9 @@ namespace IdentitiesService.Models
         public string message { get; set; }
     }
 
-    public class RegistrationTokenResponse
+    public class InvitationTokenResponse
     {
-        public string registrationToken { get; set; }
+        public string invitationToken { get; set; }
     }
     #endregion
 
