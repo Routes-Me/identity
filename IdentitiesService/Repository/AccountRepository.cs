@@ -105,6 +105,11 @@ namespace IdentitiesService.Repository
             return _helper.RenewTokens(refreshToken, accessToken);
         }
 
+        public string GenerateRegistrationToken()
+        {
+            return _helper.GenerateRegistrationToken();
+        }
+
         public dynamic RevokeRefreshToken(string refreshToken)
         {
             return _helper.RevokeRefreshToken(refreshToken);

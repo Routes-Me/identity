@@ -4,8 +4,9 @@
     {
         public string AccessSecretKey { get; set; }
         public string RefreshSecretKey { get; set; }
-        public string SessionTokenIssuer { get; set; }
+        public string TokenIssuer { get; set; }
         public string RefreshTokenAudience { get; set; }
+        public string RegistrationTokenAudience { get; set; }
         public string DashboardAudience { get; set; }
         public string RoutesAppAudience { get; set; }
         public string ScreenAudience { get; set; }

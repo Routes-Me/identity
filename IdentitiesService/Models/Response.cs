@@ -15,6 +15,11 @@ namespace IdentitiesService.Models
         public int statusCode { get; set; }
     }
 
+    public class ErrorResponse
+    {
+        public string error { get; set; }
+    }
+
     public class ReturnResponse
     {
         public static dynamic ExceptionResponse(Exception ex)
@@ -77,6 +82,11 @@ namespace IdentitiesService.Models
         public string accessToken { get; set; }
         public string refreshToken { get; set; }
         public string message { get; set; }
+    }
+
+    public class RegistrationTokenResponse
+    {
+        public string registrationToken { get; set; }
     }
     #endregion
 
