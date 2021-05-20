@@ -11,6 +11,7 @@ namespace IdentitiesService.Helper.Abstraction
         bool validateTokens(string refreshToken, string accessToken);
         dynamic VerifyToken(string token);
         TokenRenewalResponse RenewTokens(string refreshToken, string accessToken);
+        string GenerateInvitationToken();
         dynamic RevokeRefreshToken(string refreshToken);
         dynamic RevokeAccessToken(string accessToken);
         void RemoveExpiredTokens();

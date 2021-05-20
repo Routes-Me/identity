@@ -154,5 +154,21 @@ namespace IdentitiesService.Controllers
             }
             return StatusCode(StatusCodes.Status200OK, CommonMessage.RefreshTokenRevoked);
         }
+
+        [HttpGet]
+        [Route("tokens/invitations")]
+        public IActionResult GenerateInvitationToken()
+        {
+            InvitationTokenResponse response = new InvitationTokenResponse();
+            try
+            {
+                response.invitationToken = _accountRepository.GenerateInvitationToken();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponse{ error = ex.Message });
+            }
+            return StatusCode(StatusCodes.Status200OK, response);
+        }
     }
 }

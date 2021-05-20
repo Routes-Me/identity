@@ -13,5 +13,6 @@ namespace IdentitiesService.Abstraction
         dynamic RevokeRefreshToken(string refreshToken);
         dynamic RevokeAccessToken(string accessToken);
         Task<string> PasswordDecryptionAsync(string Password);
+        string GenerateInvitationToken();
     }
 }

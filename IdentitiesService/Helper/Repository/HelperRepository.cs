@@ -38,7 +38,7 @@ namespace IdentitiesService.Helper.Repository
                 throw new ArgumentNullException(CommonMessage.TokenDataNull);
 
             var key = Encoding.UTF8.GetBytes(_appSettings.AccessSecretKey);
-            string tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.GetIdentifierUrl).Content).Identifier.ToString();
+            string tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.IdentifierUrl).Content).Identifier.ToString();
 
             ExtrasDto extrasDto = new ExtrasDto();
             if (application.ToString().ToLower() == "dashboard")
@@ -53,7 +53,7 @@ namespace IdentitiesService.Helper.Repository
             };
 
             var tokenString = new JwtSecurityToken(
-                                issuer: _appSettings.SessionTokenIssuer,
+                                issuer: _appSettings.TokenIssuer,
                                 audience: GetAudience(application),
                                 expires: application.ToString().ToLower() == "screen" ? DateTime.UtcNow.AddMonths(1) : DateTime.UtcNow.AddMinutes(15),
                                 claims: claimsData,
@@ -66,7 +66,7 @@ namespace IdentitiesService.Helper.Repository
         {
             JwtSecurityToken tokenData = new JwtSecurityTokenHandler().ReadToken(accessToken) as JwtSecurityToken;
             var key = Encoding.UTF8.GetBytes(_appSettings.RefreshSecretKey);
-            var tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.GetIdentifierUrl).Content).Identifier.ToString();
+            var tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.IdentifierUrl).Content).Identifier.ToString();
             var claimsData = new Claim[]
             {
                 new Claim("sub", tokenData.Claims.First(c => c.Type == "sub").Value),
@@ -75,7 +75,7 @@ namespace IdentitiesService.Helper.Repository
             };
 
             var tokenString = new JwtSecurityToken(
-                issuer: _appSettings.SessionTokenIssuer,
+                issuer: _appSettings.TokenIssuer,
                 audience: _appSettings.RefreshTokenAudience,
                 expires: tokenData.Audiences.FirstOrDefault() == _appSettings.ScreenAudience ? DateTime.UtcNow.AddMonths(6) : DateTime.UtcNow.AddMonths(3),
                 claims: claimsData,
@@ -101,7 +101,7 @@ namespace IdentitiesService.Helper.Repository
 
             string accessTokenSignature = accessToken.Split('.').Last();
 
-            if (accessTokenSignature.Equals(decodedSignature) && refreshTokenData.ValidTo > DateTime.UtcNow && refreshTokenData.Issuer.Equals(_appSettings.SessionTokenIssuer))
+            if (accessTokenSignature.Equals(decodedSignature) && refreshTokenData.ValidTo > DateTime.UtcNow && refreshTokenData.Issuer.Equals(_appSettings.TokenIssuer))
                 return true;
             return false;
         }
@@ -112,7 +112,7 @@ namespace IdentitiesService.Helper.Repository
 
             var key = Encoding.UTF8.GetBytes(_appSettings.AccessSecretKey);
             string newAccessToken = new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken(
-                issuer: _appSettings.SessionTokenIssuer,
+                issuer: _appSettings.TokenIssuer,
                 audience: tokenData.Audiences.FirstOrDefault(),
                 expires: tokenData.Audiences.FirstOrDefault() == _appSettings.ScreenAudience ? DateTime.UtcNow.AddMonths(1) : DateTime.UtcNow.AddMinutes(15),
                 claims: tokenData.Claims,
@@ -201,6 +201,24 @@ namespace IdentitiesService.Helper.Repository
             return tokenData;
         }
 
+        public string GenerateInvitationToken()
+        {
+            byte[] key = Encoding.UTF8.GetBytes(_appSettings.RefreshSecretKey);
+            var tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.IdentifierUrl).Content).Identifier.ToString();
+            var claimsData = new Claim[]
+            {
+                new Claim("ref", tokenId),
+            };
+            var tokenString = new JwtSecurityToken(
+                issuer: _appSettings.TokenIssuer,
+                audience: _appSettings.InvitationTokenAudience,
+                expires: DateTime.UtcNow.AddHours(48),
+                claims: claimsData,
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            );
+            return new JwtSecurityTokenHandler().WriteToken(tokenString);
+        }
+
         private static string Base64Encode(string plainText)
         {
             return Convert.ToBase64String(Encoding.GetEncoding("iso-8859-1").GetBytes(plainText));
@@ -276,7 +294,7 @@ namespace IdentitiesService.Helper.Repository
 
         private string GetOfficerId(string userId)
         {
-            List<OfficersDto> officers = JsonConvert.DeserializeObject<OfficersGetResponse>(GetAPI(_dependencies.GetOfficerIdUrl, "userId=" + userId).Content).data;
+            List<OfficersDto> officers = JsonConvert.DeserializeObject<OfficersGetResponse>(GetAPI(_dependencies.OfficerUrl, "userId=" + userId).Content).data;
             if (!officers.Any() || officers == null)
                 throw new ArgumentException(CommonMessage.OfficerNotFound);
             return officers.FirstOrDefault().OfficerId ;

@@ -57,15 +57,16 @@ namespace IdentitiesService.Repository
             return originalPassword;
         }
 
-        private List<RolesDto> GetIdentitiesRoles(Identities identity)
+        private List<RolesDto> GetIdentitiesRoles(Identities identity, StringValues application)
         {
             List<RolesDto> identityRoles = _context.IdentitiesRoles.Where(i => i.IdentityId == identity.IdentityId)
                     .Select(i => new RolesDto {
                         Application = i.Roles.Application.Name,
                         Privilege = i.Roles.Privilege.Name
                     }).ToList();
+            RolesDto authentedcatedRole = identityRoles.Where(i => i.Application == application.ToString()).FirstOrDefault();
 
-            if (identityRoles == null || identityRoles.Count == 0)
+            if (identityRoles == null || identityRoles.Count == 0 || authentedcatedRole == null)
             {
                 throw new ArgumentException(CommonMessage.IncorrectUserRole);
             }
@@ -80,7 +81,7 @@ namespace IdentitiesService.Repository
                 throw new ArgumentException(CommonMessage.IncorrectUsername);
 
             AuthenticatePassword(identity.EmailIdentity, originalPassword);
-            List<RolesDto> identitiesRoles = GetIdentitiesRoles(identity);
+            List<RolesDto> identitiesRoles = GetIdentitiesRoles(identity, application);
 
             AccessTokenGenerator accessTokenGenerator = new AccessTokenGenerator()
             {
@@ -103,6 +104,11 @@ namespace IdentitiesService.Repository
             if (!_helper.validateTokens(refreshToken, accessToken))
                 throw new AccessViolationException(CommonMessage.Unauthorized);
             return _helper.RenewTokens(refreshToken, accessToken);
+        }
+
+        public string GenerateInvitationToken()
+        {
+            return _helper.GenerateInvitationToken();
         }
 
         public dynamic RevokeRefreshToken(string refreshToken)

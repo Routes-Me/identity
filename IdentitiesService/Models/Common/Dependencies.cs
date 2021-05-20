@@ -2,8 +2,8 @@
 {
     public class Dependencies
     {
-        public string GetIdentifierUrl { get; set; }
-        public string GetOfficerIdUrl { get; set; }
+        public string IdentifierUrl { get; set; }
+        public string OfficerUrl { get; set; }
     }
 }
         
