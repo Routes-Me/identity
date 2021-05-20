@@ -44,7 +44,7 @@ namespace IdentitiesService.Helper.Repository
             if (application.ToString().ToLower() == "dashboard")
             {
                 ExtrasDto extrasDto = new ExtrasDto { OfficerId = GetOfficerId(accessTokenGenerator.UserId) };
-                encodedExtraDto = Base64Encode(extrasDto.ToString());
+                encodedExtraDto = Base64Encode(JsonConvert.SerializeObject(extrasDto));
             }
 
             var claimsData = new Claim[]
