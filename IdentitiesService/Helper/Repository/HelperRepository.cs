@@ -40,16 +40,19 @@ namespace IdentitiesService.Helper.Repository
             var key = Encoding.UTF8.GetBytes(_appSettings.AccessSecretKey);
             string tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.IdentifierUrl).Content).Identifier.ToString();
 
-            ExtrasDto extrasDto = new ExtrasDto();
+            string encodedExtraDto = "";
             if (application.ToString().ToLower() == "dashboard")
-                extrasDto = new ExtrasDto { OfficerId = GetOfficerId(accessTokenGenerator.UserId) };
+            {
+                ExtrasDto extrasDto = new ExtrasDto { OfficerId = GetOfficerId(accessTokenGenerator.UserId) };
+                encodedExtraDto = Base64Encode(extrasDto.ToString());
+            }
 
             var claimsData = new Claim[]
             {
                 new Claim("sub", accessTokenGenerator.UserId.ToString()),
-                new Claim("rol", JsonConvert.SerializeObject(accessTokenGenerator.Roles)),
+                new Claim("rol", Base64Encode(JsonConvert.SerializeObject(accessTokenGenerator.Roles))),
                 new Claim("ref", tokenId),
-                application.ToString().ToLower() == "dashboard" ? new Claim("ext", JsonConvert.SerializeObject(extrasDto)) : null
+                application.ToString().ToLower() == "dashboard" ? new Claim("ext", encodedExtraDto) : null
             };
 
             var tokenString = new JwtSecurityToken(
