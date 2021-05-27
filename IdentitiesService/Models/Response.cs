@@ -84,6 +84,12 @@ namespace IdentitiesService.Models
         public string message { get; set; }
     }
 
+    public class PostIdentityResponse
+    {
+        public string Message { get; set; }
+        public string IdentityId { get; set; }
+    }
+
     public class InvitationTokenResponse
     {
         public string invitationToken { get; set; }
