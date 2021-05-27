@@ -5,6 +5,7 @@ using IdentitiesService.Models.ResponseModel;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
+using RoutesSecurity;
 using IdentitiesService.Models.DBModels;
 
 namespace IdentitiesService.Controllers
@@ -26,11 +27,13 @@ namespace IdentitiesService.Controllers
         [Route("identities")]
         public async Task<IActionResult> PostIdentity(RegistrationDto registrationDto)
         {
+            PostIdentityResponse response = new PostIdentityResponse();
             try
             {
                 Identities identity = await _identitesRepository.PostIdentity(registrationDto);
                 _context.Identities.Add(identity);
                 await _context.SaveChangesAsync();
+                response.IdentityId = Obfuscation.Encode(identity.IdentityId);
             }
             catch (ArgumentNullException ex)
             {
@@ -44,7 +47,8 @@ namespace IdentitiesService.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, CommonMessage.ExceptionMessage + ex.Message);
             }
-            return StatusCode(StatusCodes.Status201Created, CommonMessage.IdentityInsert);
+            response.Message = CommonMessage.IdentityInsert;
+            return StatusCode(StatusCodes.Status201Created, response);
         }
     }
 }
