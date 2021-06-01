@@ -7,11 +7,12 @@
         public static string PhoneExist = "Phone number already exist.";   
         public static string EmailExist = "Email already exist.";
         public static string IdentityInsert = "Identity created successfully.";
+        public static string IdentityNotFound = "Identity not found.";
         public static string MissingUserName = "Missing username.";
         public static string MissingPassword = "Missing password.";
         public static string IncorrectUsername = "Incorrect username.";
         public static string IncorrectPassword = "Incorrect password.";
-        public static string IncorrectUserRole = "Incorrect user role.";
+        public static string IncorrectIdentityRole = "Incorrect identity role.";
         public static string LoginSuccess = "Login successfully.";
         public static string RenewSuccess = "Tokens Renewed successfully.";
         public static string ExceptionMessage = "Something went wrong. Error Message - ";

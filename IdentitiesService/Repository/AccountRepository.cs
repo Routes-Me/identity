@@ -68,7 +68,7 @@ namespace IdentitiesService.Repository
 
             if (identityRoles == null || identityRoles.Count == 0 || authentedcatedRole == null)
             {
-                throw new ArgumentException(CommonMessage.IncorrectUserRole);
+                throw new ArgumentException(CommonMessage.IncorrectIdentityRole);
             }
             return identityRoles;
         }

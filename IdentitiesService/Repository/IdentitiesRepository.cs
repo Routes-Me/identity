@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 using RoutesSecurity;
 using System;
 using System.Collections.Generic;
@@ -69,11 +70,23 @@ namespace IdentitiesService.Repository
                 {
                     new IdentitiesRoles
                     {
-                        ApplicationId = GetApplicationId(registrationDto.Roles.Application),
-                        PrivilegeId = GetPrivilegeId(registrationDto.Roles.Privilege)
+                        ApplicationId = registrationDto.Roles.Application.Any(char.IsDigit) ? Obfuscation.Decode(registrationDto.Roles.Application) : GetApplicationId(registrationDto.Roles.Application),
+                        PrivilegeId = registrationDto.Roles.Privilege.Any(char.IsDigit) ? Obfuscation.Decode(registrationDto.Roles.Privilege) : GetPrivilegeId(registrationDto.Roles.Privilege)
                     }
                 }
             };
+            return identity;
+        }
+
+        public Identities DeleteIdentity(string identityId)
+        {
+            if (string.IsNullOrEmpty(identityId))
+                throw new ArgumentNullException(CommonMessage.PassValidData);
+
+            Identities identity = _context.Identities.Include(i => i.EmailIdentity).Include(i => i.IdentitiesRoles).Include(i => i.PhoneIdentities).Where(i => i.IdentityId == Obfuscation.Decode(identityId)).FirstOrDefault();
+            if (identity == null)
+                throw new KeyNotFoundException(CommonMessage.IdentityNotFound);
+
             return identity;
         }
 

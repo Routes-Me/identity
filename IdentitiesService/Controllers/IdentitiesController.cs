@@ -5,6 +5,7 @@ using IdentitiesService.Models.ResponseModel;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using RoutesSecurity;
 using IdentitiesService.Models.DBModels;
 
@@ -49,6 +50,31 @@ namespace IdentitiesService.Controllers
             }
             response.Message = CommonMessage.IdentityInsert;
             return StatusCode(StatusCodes.Status201Created, response);
+        }
+
+        [HttpDelete]
+        [Route("identities/{identityId}")]
+        public async Task<IActionResult> DeleteIdentity(string identityId)
+        {
+            try
+            {
+                Identities identity = _identitesRepository.DeleteIdentity(identityId);
+                _context.Identities.Remove(identity);
+                await _context.SaveChangesAsync();
+            }
+            catch (ArgumentNullException ex)
+            {
+                return StatusCode(StatusCodes.Status422UnprocessableEntity, ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, ex.Message);
+            }
+            return StatusCode(StatusCodes.Status204NoContent);
         }
     }
 }
