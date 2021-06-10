@@ -33,7 +33,7 @@ namespace IdentitiesService.Repository
 
         public async Task<Identities> PostIdentity(RegistrationDto registrationDto)
         {
-            if (registrationDto == null || registrationDto.Roles == null || string.IsNullOrEmpty(registrationDto.PhoneNumber) || string.IsNullOrEmpty(registrationDto.Email) || string.IsNullOrEmpty(registrationDto.Roles.Application) || string.IsNullOrEmpty(registrationDto.Roles.Privilege))
+            if (registrationDto == null || registrationDto.Roles == null || string.IsNullOrEmpty(registrationDto.Email) || string.IsNullOrEmpty(registrationDto.Roles.Application) || string.IsNullOrEmpty(registrationDto.Roles.Privilege))
                 throw new ArgumentNullException(CommonMessage.PassValidData);
 
             var email = _context.EmailIdentities.Where(x => x.Email == registrationDto.Email).FirstOrDefault();
@@ -58,7 +58,7 @@ namespace IdentitiesService.Repository
                     CreatedAt = DateTime.Now,
                     Password = _passwordHasherRepository.Hash(originalPassword)
                 },
-                PhoneIdentities = new List<PhoneIdentities>
+                PhoneIdentities = string.IsNullOrEmpty(registrationDto.PhoneNumber) ? null : new List<PhoneIdentities>
                 {
                     new PhoneIdentities
                     {
