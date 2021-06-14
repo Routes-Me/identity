@@ -7,5 +7,6 @@ namespace IdentitiesService.Abstraction
     public interface IIdentitiesRepository
     {
         Task<Identities> PostIdentity(RegistrationDto registrationDto);
+        Identities DeleteIdentity(string identityId);
     }
 }

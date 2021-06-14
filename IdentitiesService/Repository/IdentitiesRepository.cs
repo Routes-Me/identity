@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 using RoutesSecurity;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace IdentitiesService.Repository
 
         public async Task<Identities> PostIdentity(RegistrationDto registrationDto)
         {
-            if (registrationDto == null || registrationDto.Roles == null || string.IsNullOrEmpty(registrationDto.PhoneNumber) || string.IsNullOrEmpty(registrationDto.Email) || string.IsNullOrEmpty(registrationDto.Roles.Application) || string.IsNullOrEmpty(registrationDto.Roles.Privilege))
+            if (registrationDto == null || registrationDto.Roles == null || string.IsNullOrEmpty(registrationDto.Email) || string.IsNullOrEmpty(registrationDto.Roles.Application) || string.IsNullOrEmpty(registrationDto.Roles.Privilege))
                 throw new ArgumentNullException(CommonMessage.PassValidData);
 
             var email = _context.EmailIdentities.Where(x => x.Email == registrationDto.Email).FirstOrDefault();
@@ -57,7 +58,7 @@ namespace IdentitiesService.Repository
                     CreatedAt = DateTime.Now,
                     Password = _passwordHasherRepository.Hash(originalPassword)
                 },
-                PhoneIdentities = new List<PhoneIdentities>
+                PhoneIdentities = string.IsNullOrEmpty(registrationDto.PhoneNumber) ? null : new List<PhoneIdentities>
                 {
                     new PhoneIdentities
                     {
@@ -69,11 +70,23 @@ namespace IdentitiesService.Repository
                 {
                     new IdentitiesRoles
                     {
-                        ApplicationId = GetApplicationId(registrationDto.Roles.Application),
-                        PrivilegeId = GetPrivilegeId(registrationDto.Roles.Privilege)
+                        ApplicationId = registrationDto.Roles.Application.Any(char.IsDigit) ? Obfuscation.Decode(registrationDto.Roles.Application) : GetApplicationId(registrationDto.Roles.Application),
+                        PrivilegeId = registrationDto.Roles.Privilege.Any(char.IsDigit) ? Obfuscation.Decode(registrationDto.Roles.Privilege) : GetPrivilegeId(registrationDto.Roles.Privilege)
                     }
                 }
             };
+            return identity;
+        }
+
+        public Identities DeleteIdentity(string identityId)
+        {
+            if (string.IsNullOrEmpty(identityId))
+                throw new ArgumentNullException(CommonMessage.PassValidData);
+
+            Identities identity = _context.Identities.Include(i => i.EmailIdentity).Include(i => i.IdentitiesRoles).Include(i => i.PhoneIdentities).Where(i => i.IdentityId == Obfuscation.Decode(identityId)).FirstOrDefault();
+            if (identity == null)
+                throw new KeyNotFoundException(CommonMessage.IdentityNotFound);
+
             return identity;
         }
 

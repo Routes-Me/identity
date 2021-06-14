@@ -72,7 +72,7 @@ namespace IdentitiesService.Models.DBModels
                 entity.HasOne(d => d.Identity)
                     .WithMany(p => p.PhoneIdentities)
                     .HasForeignKey(d => d.IdentityId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("phone_identities_ibfk_1");
             });
 
@@ -189,13 +189,13 @@ namespace IdentitiesService.Models.DBModels
                 entity.HasOne(d => d.Identity)
                     .WithMany(p => p.IdentitiesRoles)
                     .HasForeignKey(d => d.IdentityId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("Identities_roles_ibfk_1");
 
                 entity.HasOne(d => d.Roles)
                     .WithMany(p => p.IdentitiesRoles)
                     .HasForeignKey(d => new { d.ApplicationId, d.PrivilegeId })
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("Identities_roles_ibfk_2");
             });
 
