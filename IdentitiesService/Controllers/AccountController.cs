@@ -57,7 +57,8 @@ namespace IdentitiesService.Controllers
             }
             SignInResponse response = new SignInResponse
             {
-                token = authenticationResponse.accessToken
+                Token = authenticationResponse.accessToken,
+                RefreshToken = authenticationResponse.refreshToken
             };
 
             var cookieOptions = new CookieOptions

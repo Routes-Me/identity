@@ -66,8 +66,8 @@ namespace IdentitiesService.Models
 
     public class SignInResponse
     {
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string token { get; set; }
+        public string Token { get; set; }
+        public string RefreshToken { get; set; }
     }
 
     public class AuthenticationResponse
