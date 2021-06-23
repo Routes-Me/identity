@@ -58,7 +58,7 @@ namespace IdentitiesService.Helper.Repository
             var tokenString = new JwtSecurityToken(
                                 issuer: _appSettings.TokenIssuer,
                                 audience: GetAudience(application),
-                                expires: application.ToString().ToLower() == "screen" ? DateTime.UtcNow.AddMonths(1) : DateTime.UtcNow.AddMinutes(15),
+                                expires: application.ToString().ToLower() == "screen" ? DateTime.UtcNow.AddMonths(1) : DateTime.UtcNow.AddMinutes(1),
                                 claims: claimsData,
                                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                                 );
@@ -204,12 +204,16 @@ namespace IdentitiesService.Helper.Repository
             return tokenData;
         }
 
-        public string GenerateInvitationToken()
+        public string GenerateInvitationToken(InvitationTokenGenerationDto invitationTokenGenerationDto)
         {
+            if (string.IsNullOrEmpty(invitationTokenGenerationDto.InvitationId))
+                throw new ArgumentNullException(CommonMessage.MissingInvitationId);
+
             byte[] key = Encoding.UTF8.GetBytes(_appSettings.RefreshSecretKey);
             var tokenId = JsonConvert.DeserializeObject<IdentifierResponse>(GetAPI(_dependencies.IdentifierUrl).Content).Identifier.ToString();
             var claimsData = new Claim[]
             {
+                new Claim("sub", invitationTokenGenerationDto.InvitationId),
                 new Claim("ref", tokenId),
             };
             var tokenString = new JwtSecurityToken(
