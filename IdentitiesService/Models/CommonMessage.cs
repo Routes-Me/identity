@@ -10,6 +10,7 @@
         public static string IdentityNotFound = "Identity not found.";
         public static string MissingUserName = "Missing username.";
         public static string MissingPassword = "Missing password.";
+        public static string MissingInvitationId = "Missing InvitationId.";
         public static string IncorrectUsername = "Incorrect username.";
         public static string IncorrectPassword = "Incorrect password.";
         public static string IncorrectIdentityRole = "Incorrect identity role.";
