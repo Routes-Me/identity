@@ -11,6 +11,7 @@
         public string RoutesAppAudience { get; set; }
         public string ScreenAudience { get; set; }
         public string BusValidatorAudience { get; set; }
+        public string DriverAppAudience { get; set; }
         public string Host { get; set; }
         public string IVForAndroid { get; set; }
         public string KeyForAndroid { get; set; }

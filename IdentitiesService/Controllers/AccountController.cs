@@ -14,7 +14,7 @@ using IdentitiesService.Models.DBModels;
 namespace IdentitiesService.Controllers
 {
     [ApiController]
-    [ApiVersion( "1.0" )]
+    [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/")]
     public class AccountController : ControllerBase
     {
@@ -170,6 +170,36 @@ namespace IdentitiesService.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponse{ error = ex.Message });
             }
             return StatusCode(StatusCodes.Status200OK, response);
+        }
+
+        [HttpGet]
+        [Route("authentications/number")]
+        public TokenResponse AuthenticatePhoneNumber(string phoneNumber, string application)
+        {
+            try
+            {
+                var authenticationResponse = _accountRepository.AuthenticatePhoneNumber(phoneNumber, application);
+                _context.Identities.Update(authenticationResponse.identity);
+                _context.SaveChanges();
+
+                TokenResponse response = new TokenResponse
+                {
+                    Token = authenticationResponse.accessToken,
+                    RefreshToken = authenticationResponse.refreshToken
+                };
+
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true
+                };
+                Response.Cookies.Append("refreshToken", authenticationResponse.refreshToken, cookieOptions);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

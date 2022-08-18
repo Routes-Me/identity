@@ -265,6 +265,7 @@ namespace IdentitiesService.Helper.Repository
                 case "routes-app": return _appSettings.RoutesAppAudience;
                 case "screen": return _appSettings.ScreenAudience;
                 case "bus-validator": return _appSettings.BusValidatorAudience;
+                case "driver-app": return _appSettings.DriverAppAudience;
                 default: return CommonMessage.UnknownApplication;
             }
         }

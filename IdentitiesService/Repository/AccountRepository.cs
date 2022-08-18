@@ -128,5 +128,29 @@ namespace IdentitiesService.Repository
             else
                 return await encryption.DecodeAndDecrypt(Password, _appSettings.IVForAndroid, _appSettings.KeyForAndroid);
         }
+
+        public AuthenticationResponse AuthenticatePhoneNumber(string phoneNumber, string application)
+        {
+            var identity = _context.Identities.Include(x => x.PhoneIdentities).FirstOrDefault(x => x.PhoneIdentities.FirstOrDefault().PhoneNumber == phoneNumber);
+            if (identity == null)
+                throw new ArgumentException(CommonMessage.IncorrectUsername);
+
+            var identitiesRoles = GetIdentitiesRoles(identity, application);
+
+            var accessTokenGenerator = new AccessTokenGenerator()
+            {
+                UserId = Obfuscation.Encode(identity.UserId),
+                Roles = identitiesRoles
+            };
+            string accessToken = _helper.GenerateAccessToken(accessTokenGenerator, application);
+            string refreshToken = _helper.GenerateRefreshToken(accessToken);
+
+            return new AuthenticationResponse()
+            {
+                identity = identity,
+                accessToken = accessToken,
+                refreshToken = refreshToken
+            };
+        }
     }
 }
