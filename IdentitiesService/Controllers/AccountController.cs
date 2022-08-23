@@ -173,7 +173,7 @@ namespace IdentitiesService.Controllers
         }
 
         [HttpGet]
-        [Route("authentications/number")]
+        [Route("authentications/driver")]
         public TokenResponse AuthenticatePhoneNumber(string phoneNumber, string application)
         {
             try
