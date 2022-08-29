@@ -156,20 +156,24 @@ namespace IdentitiesService.Controllers
             return StatusCode(StatusCodes.Status200OK, CommonMessage.RefreshTokenRevoked);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("tokens/invitations")]
-        public IActionResult GenerateInvitationToken()
+        public IActionResult GenerateInvitationToken(InvitationTokenGenerationDto invitationTokenGenerationDto)
         {
             InvitationTokenResponse response = new InvitationTokenResponse();
             try
             {
-                response.invitationToken = _accountRepository.GenerateInvitationToken();
+                response.invitationToken = _accountRepository.GenerateInvitationToken(invitationTokenGenerationDto);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return StatusCode(StatusCodes.Status422UnprocessableEntity, new ErrorResponse{ error = ex.Message });
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponse{ error = ex.Message });
             }
-            return StatusCode(StatusCodes.Status200OK, response);
+            return StatusCode(StatusCodes.Status201Created, response);
         }
 
         [HttpGet]

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Primitives;
 using IdentitiesService.Models.Common;
 using IdentitiesService.Models;
+using IdentitiesService.Models.ResponseModel;
 
 namespace IdentitiesService.Helper.Abstraction
 {
@@ -11,7 +12,7 @@ namespace IdentitiesService.Helper.Abstraction
         bool validateTokens(string refreshToken, string accessToken);
         dynamic VerifyToken(string token);
         TokenRenewalResponse RenewTokens(string refreshToken, string accessToken);
-        string GenerateInvitationToken();
+        string GenerateInvitationToken(InvitationTokenGenerationDto invitationTokenGenerationDto);
         dynamic RevokeRefreshToken(string refreshToken);
         dynamic RevokeAccessToken(string accessToken);
         void RemoveExpiredTokens();
