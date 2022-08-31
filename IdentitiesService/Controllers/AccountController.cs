@@ -171,5 +171,35 @@ namespace IdentitiesService.Controllers
             }
             return StatusCode(StatusCodes.Status200OK, response);
         }
+        [HttpPost]
+        [Route("authentications/number")]
+        public IActionResult AuthenticatePhoneNumber(string number, string verificationToken)
+        {
+            if (!string.IsNullOrEmpty(number) && !string.IsNullOrEmpty(verificationToken))
+            {
+                try
+                {
+                    StringValues application;
+                    Request.Headers.TryGetValue("application", out application);
+                    var authentication = _accountRepository.AuthenticatePhoneNumber(number, verificationToken, application);
+                    if (authentication == null)
+                        throw new ArgumentNullException(CommonMessage.InvalidData);
+                    var response = new SignInResponse()
+                    {
+                        Token = authentication.Token,
+                        RefreshToken = authentication.RefreshToken
+                    };
+                    return StatusCode(StatusCodes.Status200OK, response);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, ReturnResponse.ExceptionResponse(ex));
+                }
+            }
+            else
+            {
+                throw new ArgumentNullException(CommonMessage.InvalidData);
+            }
+        }
     }
 }

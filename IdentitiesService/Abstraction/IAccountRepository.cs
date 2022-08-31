@@ -14,5 +14,6 @@ namespace IdentitiesService.Abstraction
         dynamic RevokeAccessToken(string accessToken);
         Task<string> PasswordDecryptionAsync(string Password);
         string GenerateInvitationToken();
+        SignInResponse AuthenticatePhoneNumber(string number, string verificationToken, StringValues application);
     }
 }

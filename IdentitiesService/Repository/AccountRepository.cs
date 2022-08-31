@@ -1,22 +1,18 @@
 ﻿using Encryption;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json;
-using RoutesSecurity;
-using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using IdentitiesService.Abstraction;
 using IdentitiesService.Helper.Abstraction;
 using IdentitiesService.Models;
 using IdentitiesService.Models.Common;
 using IdentitiesService.Models.DBModels;
 using IdentitiesService.Models.ResponseModel;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
+using RoutesSecurity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace IdentitiesService.Repository
 {
@@ -127,6 +123,44 @@ namespace IdentitiesService.Repository
                 return await encryption.DecodeAndDecrypt(Password, _appSettings.IVForDashboard, _appSettings.KeyForDashboard);
             else
                 return await encryption.DecodeAndDecrypt(Password, _appSettings.IVForAndroid, _appSettings.KeyForAndroid);
+        }
+        public SignInResponse AuthenticatePhoneNumber(string number, string verificationToken, StringValues application)
+        {
+            try
+            {
+                var identities = _context.Identities.Include(x => x.PhoneIdentities).Where(x => x.PhoneIdentities.FirstOrDefault().PhoneNumber == number).FirstOrDefault();
+                if (identities is null)
+                {
+                    throw new ArgumentException(CommonMessage.IncorrectNumber);
+                }
+                try
+                {
+                    var token = _helper.VerifyToken(verificationToken);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+
+                List<RolesDto> identitiesRoles = GetIdentitiesRoles(identities, application);
+                AccessTokenGenerator accessTokenGenerator = new AccessTokenGenerator()
+                {
+                    UserId = Obfuscation.Encode(identities.UserId),
+                    Roles = identitiesRoles
+                };
+
+                string accessToken = _helper.GenerateAccessToken(accessTokenGenerator, application);
+                string refreshToken = _helper.GenerateRefreshToken(accessToken);
+                return new SignInResponse()
+                {
+                    Token = accessToken,
+                    RefreshToken = refreshToken
+                };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

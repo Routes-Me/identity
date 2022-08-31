@@ -2,6 +2,7 @@
 {
     public class CommonMessage
     {
+        public static string IncorrectNumber = "Incorrect number";
         public static string RoleConflict = "Role is associated with other user.";
         public static string PassValidData = "Some data are missed in the request. Pass valid data.";
         public static string PhoneExist = "Phone number already exist.";   
