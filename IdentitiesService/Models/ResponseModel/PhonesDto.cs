@@ -1,4 +1,4 @@
-﻿assertnamespace IdentitiesService.Models.ResponseModel
+﻿namespace IdentitiesService.Models.ResponseModel
 {
     public class PhonesDto
     {
